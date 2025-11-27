@@ -9,3 +9,26 @@ build/
 .next/
 out/
 .strapi/
+
+# Backend specific
+backend/.tmp/
+backend/dist/
+backend/build/
+backend/.env
+backend/package-lock.json
+backend/.strapi/
+
+# Frontend specific  
+frontend/.next/
+frontend/out/
+frontend/.env.local
+frontend/package-lock.json
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+*.swp
+*.swo
+*~
