@@ -26,11 +26,7 @@ export async function fetchAPI(url: string, options: FetchAPIOptions) {
   try {
     const response = await fetch(url, headers);
     const contentType = response.headers.get("content-type");
-    if (
-      contentType &&
-      contentType.includes("application/json") &&
-      response.ok
-    ) {
+    if (contentType && contentType.includes("application/json") && response.ok) {
       return await response.json();
     } else {
       return { status: response.status, statusText: response.statusText };

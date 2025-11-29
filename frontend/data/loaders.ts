@@ -11,13 +11,6 @@ const homePageQuery = qs.stringify({
             image: {
               fields: ["url", "alternativeText"],
             },
-            logo: {
-              populate: {
-                image: {
-                  fields: ["url", "alternativeText"],
-                },
-              },
-            },
           },
         },
         "blocks.info-block": {
