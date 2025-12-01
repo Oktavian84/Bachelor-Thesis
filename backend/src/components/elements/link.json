@@ -14,13 +14,6 @@
     "isExternal": {
       "type": "boolean",
       "default": false
-    },
-    "theme": {
-      "type": "enumeration",
-      "enum": [
-        "white",
-        "black"
-      ]
     }
   },
   "config": {}

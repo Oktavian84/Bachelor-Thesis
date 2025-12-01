@@ -6,9 +6,11 @@ export interface BlocksHeroSection extends Struct.ComponentSchema {
     displayName: 'Hero Section';
   };
   attributes: {
+    cta: Schema.Attribute.Component<'elements.link', false>;
     description: Schema.Attribute.Text;
     heading: Schema.Attribute.String;
     image: Schema.Attribute.Media<'images'>;
+    reversed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
   };
 }
 
@@ -33,7 +35,6 @@ export interface ElementsLink extends Struct.ComponentSchema {
     href: Schema.Attribute.String;
     isExternal: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     text: Schema.Attribute.String;
-    theme: Schema.Attribute.Enumeration<['white', 'black']>;
   };
 }
 

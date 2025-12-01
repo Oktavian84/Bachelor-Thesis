@@ -17,6 +17,15 @@
     },
     "description": {
       "type": "text"
+    },
+    "reversed": {
+      "type": "boolean",
+      "default": false
+    },
+    "cta": {
+      "type": "component",
+      "component": "elements.link",
+      "repeatable": false
     }
   },
   "config": {}
