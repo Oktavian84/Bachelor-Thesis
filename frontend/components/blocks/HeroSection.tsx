@@ -27,7 +27,7 @@ export function HeroSection({
                 )}
               </div>
               {description && (
-                <p className="text-white text-4xl leading-relaxed whitespace-pre-line max-w-md text-center">
+                <p className="text-rose-300 text-4xl leading-relaxed whitespace-pre-line max-w-md text-center">
                   {description}
                 </p>
               )}
@@ -51,7 +51,7 @@ export function HeroSection({
   }
 
   return (
-    <section className="relative w-full min-h-[90vh] overflow-hidden rounded-b-[10rem] shadow-lg shadow-white/30">
+    <section className="relative w-full min-h-[90vh] overflow-hidden rounded-b-[10rem] shadow-lg shadow-rose-300/50">
       {/* Background Image */}
       <div className="absolute inset-0 w-full h-full rounded-b-[5rem] overflow-hidden">
         <StrapiImage

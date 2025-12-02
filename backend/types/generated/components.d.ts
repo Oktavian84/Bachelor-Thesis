@@ -22,6 +22,7 @@ export interface BlocksInfoBlock extends Struct.ComponentSchema {
   attributes: {
     content: Schema.Attribute.Text;
     headline: Schema.Attribute.String;
+    image: Schema.Attribute.Media<'images'>;
     reversed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
   };
 }
