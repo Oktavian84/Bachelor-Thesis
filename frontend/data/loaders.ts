@@ -74,3 +74,39 @@ export async function getPageBySlug(slug: string) {
   
   return await fetchAPI(url.href, { method: "GET" });
 }
+
+const globalSettingQuery = qs.stringify({
+  populate: {
+    header: {
+      populate: {
+        logo: {
+          populate: {
+            image: {
+              fields: ["url", "alternativeText"],
+            },
+          },
+        },
+        navigation: true,
+      },
+    },
+    footer: {
+      populate: {
+        logo: {
+          populate: {
+            image: {
+              fields: ["url", "alternativeText"],
+            },
+          },
+        },
+        policies: true,
+      },
+    },
+  },
+});
+
+export async function getGlobalSettings() {
+  const path = "/api/global";
+  const url = new URL(path, BASE_URL);
+  url.search = globalSettingQuery;
+  return fetchAPI(url.href, { method: "GET" });
+}
