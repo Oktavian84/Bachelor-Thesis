@@ -7,19 +7,18 @@ export function HeroSection({
   heading,
   image,
   description,
-  reversed = false,
+  reversed,
 }: Readonly<HeroSectionProps>) {
   if (reversed) {
     return (
       <section className="w-full">
-        {/* Text ovanför bilden */}
         <div className="bg-black py-6">
           <div className="container mx-auto px-8">
             <div className="flex flex-col gap-8">
               <div className="flex items-center justify-between">
                 <h1 className="text-white text-7xl font-bold">{heading}</h1>
                 {cta && (
-                  <button className="bg-white text-black px-6 py-3 rounded-lg font-bold text-2xl hover:bg-gray-200 transition-colors whitespace-nowrap">
+                  <button className="bg-white text-black px-4 py-2 rounded-4xl font-bold text-md hover:bg-gray-200 transition-colors whitespace-nowrap">
                     <Link href={cta.href} target={cta.isExternal ? "_blank" : "_self"}>
                       {cta.text}
                     </Link>
@@ -35,8 +34,7 @@ export function HeroSection({
           </div>
         </div>
 
-        {/* Bild under texten */}
-        <section className="relative w-full min-h-[75vh] overflow-hidden rounded-t-[10rem] shadow-lg shadow-white/30">
+        <section className="relative w-full min-h-[75vh] overflow-hidden rounded-t-[10rem]">
           <div className="absolute inset-0 w-full h-full rounded-t-[5rem] overflow-hidden">
             <StrapiImage
               src={image.url}
@@ -51,7 +49,7 @@ export function HeroSection({
   }
 
   return (
-    <section className="relative w-full min-h-[90vh] overflow-hidden rounded-b-[10rem] shadow-lg shadow-rose-300/50">
+    <section className="relative w-full min-h-[90vh] overflow-hidden rounded-b-[10rem] shadow-lg shadow-amber-100/50 pt-24">
       {/* Background Image */}
       <div className="absolute inset-0 w-full h-full rounded-b-[5rem] overflow-hidden">
         <StrapiImage
@@ -63,7 +61,7 @@ export function HeroSection({
       </div>
 
       {/* Content Overlay */}
-      <div className="relative z-10 min-h-[90vh] flex items-center justify-center py-32">
+      <div className="relative z-10 min-h-[75vh] flex items-center justify-center py-32">
         <div className="container mx-auto px-8 w-full">
           <div className="grid grid-cols-2 gap-10 items-center">
             {/* Left side - Title */}

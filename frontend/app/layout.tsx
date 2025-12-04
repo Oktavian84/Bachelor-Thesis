@@ -26,18 +26,14 @@ async function loader() {
   return { header: data?.header, footer: data?.footer };
 }
 
-export default async function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default async function RootLayout({ children }: Readonly<{children: React.ReactNode;}>) {
   const { header, footer } = await loader();
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-      <Header data={header} />
+        <Header data={header} />
         {children}
-      <Footer data={footer} />
+        <Footer data={footer} />
       </body>
     </html>
   );
