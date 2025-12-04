@@ -1,5 +1,17 @@
 import type { Schema, Struct } from '@strapi/strapi';
 
+export interface BlocksAboutBlock extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_about_blocks';
+  info: {
+    displayName: 'About Block';
+  };
+  attributes: {
+    content: Schema.Attribute.Text;
+    headline: Schema.Attribute.String;
+    reversed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+  };
+}
+
 export interface BlocksHeroSection extends Struct.ComponentSchema {
   collectionName: 'components_blocks_hero_sections';
   info: {
@@ -76,6 +88,7 @@ export interface LayoutHeader extends Struct.ComponentSchema {
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
+      'blocks.about-block': BlocksAboutBlock;
       'blocks.hero-section': BlocksHeroSection;
       'blocks.info-block': BlocksInfoBlock;
       'elements.link': ElementsLink;

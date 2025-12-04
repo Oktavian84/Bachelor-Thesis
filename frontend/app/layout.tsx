@@ -17,7 +17,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "CINC ART - Metal Sculptures & Art",
-  description: "Discover stunning welded metal sculptures and art pieces. Each creation is a unique masterpiece of craftsmanship and creativity.",
+  description:
+    "Discover stunning welded metal sculptures and art pieces. Each creation is a unique masterpiece of craftsmanship and creativity.",
 };
 
 async function loader() {
@@ -26,13 +27,16 @@ async function loader() {
   return { header: data?.header, footer: data?.footer };
 }
 
-export default async function RootLayout({ children }: Readonly<{children: React.ReactNode;}>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const { header, footer } = await loader();
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="en" className="h-full">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full flex flex-col`}
+      >
         <Header data={header} />
-        {children}
+        <main className="flex-1">{children}</main>
+
         <Footer data={footer} />
       </body>
     </html>

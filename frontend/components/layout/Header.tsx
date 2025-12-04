@@ -32,7 +32,7 @@ export function Header({ data }: HeaderProps) {
           </div>
         </Link>
         
-        <nav className="hidden md:block">
+        <nav className="hidden sm:block">
           <ul className="flex items-center gap-8">
             {navigation.map((item) => (
               <li key={item.id}>
@@ -50,7 +50,7 @@ export function Header({ data }: HeaderProps) {
 
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="md:hidden text-white focus:outline-none"
+          className="sm:hidden text-white focus:outline-none"
           aria-label="Toggle menu"
         >
           <svg
@@ -72,7 +72,7 @@ export function Header({ data }: HeaderProps) {
       </div>
 
       {isMenuOpen && (
-        <nav className="md:hidden mt-4">
+        <nav className="sm:hidden mt-4">
           <ul className="flex flex-row flex-wrap gap-6 justify-center">
             {navigation.map((item) => (
               <li key={item.id}>

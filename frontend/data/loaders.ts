@@ -62,6 +62,9 @@ const pageBySlugQuery = (slug: string) => qs.stringify({
           },
           fields: ["headline", "content", "reversed"],
         },
+        "blocks.about-block": {
+          populate: "*",
+        },
       },
     },
   },
