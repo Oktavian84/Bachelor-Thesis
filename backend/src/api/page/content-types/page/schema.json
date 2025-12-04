@@ -22,7 +22,8 @@
       "components": [
         "blocks.info-block",
         "blocks.hero-section",
-        "blocks.about-block"
+        "blocks.about-block",
+        "blocks.privacy-block"
       ]
     },
     "slug": {

@@ -17,7 +17,7 @@ export interface LogoProps {
   image: ImageProps;
 }
 
-type ComponentType = "blocks.hero-section" | "blocks.info-block" | "blocks.about-block";
+type ComponentType = "blocks.hero-section" | "blocks.info-block" | "blocks.about-block" | "blocks.privacy-block";
 
 interface Base<
   T extends ComponentType,
@@ -32,7 +32,7 @@ interface Base<
   data?: D;
 }
 
-export type Block = HeroSectionProps | InfoBlockProps | AboutBlockProps;
+export type Block = HeroSectionProps | InfoBlockProps | AboutBlockProps | PrivacyBlockProps;
 
 export interface HeroSectionProps extends Base<"blocks.hero-section"> {
   heading: string;
@@ -50,6 +50,12 @@ export interface InfoBlockProps extends Base<"blocks.info-block"> {
 }
 
 export interface AboutBlockProps extends Base<"blocks.about-block"> {
+  reversed?: boolean;
+  headline: string;
+  content: string;
+}
+
+export interface PrivacyBlockProps extends Base<"blocks.privacy-block"> {
   reversed?: boolean;
   headline: string;
   content: string;

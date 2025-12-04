@@ -65,6 +65,9 @@ const pageBySlugQuery = (slug: string) => qs.stringify({
         "blocks.about-block": {
           populate: "*",
         },
+        "blocks.privacy-block": {
+          populate: "*",
+        },
       },
     },
   },

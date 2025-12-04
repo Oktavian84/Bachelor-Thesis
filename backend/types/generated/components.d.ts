@@ -39,6 +39,18 @@ export interface BlocksInfoBlock extends Struct.ComponentSchema {
   };
 }
 
+export interface BlocksPrivacyBlock extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_privacy_blocks';
+  info: {
+    displayName: 'Privacy Block';
+  };
+  attributes: {
+    content: Schema.Attribute.Text;
+    headline: Schema.Attribute.String;
+    reversed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+  };
+}
+
 export interface ElementsLink extends Struct.ComponentSchema {
   collectionName: 'components_elements_links';
   info: {
@@ -91,6 +103,7 @@ declare module '@strapi/strapi' {
       'blocks.about-block': BlocksAboutBlock;
       'blocks.hero-section': BlocksHeroSection;
       'blocks.info-block': BlocksInfoBlock;
+      'blocks.privacy-block': BlocksPrivacyBlock;
       'elements.link': ElementsLink;
       'elements.logo': ElementsLogo;
       'layout.footer': LayoutFooter;

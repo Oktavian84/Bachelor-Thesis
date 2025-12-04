@@ -3,6 +3,7 @@ import type { Block } from "@/types";
 import { HeroSection } from "@/components/blocks/HeroSection";
 import { InfoBlock } from "@/components/blocks/InfoBlock";
 import { AboutBlock } from "@/components/blocks/AboutBlock";
+import { PrivacyBlock } from "@/components/blocks/PrivacyBlock";
 
 function blockRenderer(block: Block, index: number) {
   switch (block.__component) {
@@ -12,6 +13,8 @@ function blockRenderer(block: Block, index: number) {
       return <InfoBlock {...block} key={index} />;
     case "blocks.about-block":
       return <AboutBlock {...block} key={index} />;
+    case "blocks.privacy-block":
+      return <PrivacyBlock {...block} key={index} />;
     default:
       return null;
   }
