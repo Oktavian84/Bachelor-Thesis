@@ -508,6 +508,7 @@ export interface ApiPagePage extends Struct.CollectionTypeSchema {
         'blocks.hero-section',
         'blocks.about-block',
         'blocks.privacy-block',
+        'blocks.faq-block',
       ]
     >;
     createdAt: Schema.Attribute.DateTime;
