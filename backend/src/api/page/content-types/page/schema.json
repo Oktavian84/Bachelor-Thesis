@@ -24,7 +24,8 @@
         "blocks.hero-section",
         "blocks.about-block",
         "blocks.privacy-block",
-        "blocks.faq-block"
+        "blocks.faq-block",
+        "blocks.contact-block"
       ]
     },
     "slug": {

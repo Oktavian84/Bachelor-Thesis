@@ -17,7 +17,7 @@ export interface LogoProps {
   image: ImageProps;
 }
 
-type ComponentType = "blocks.hero-section" | "blocks.info-block" | "blocks.about-block" | "blocks.privacy-block" | "blocks.faq-block";
+type ComponentType = "blocks.hero-section" | "blocks.info-block" | "blocks.about-block" | "blocks.privacy-block" | "blocks.faq-block" | "blocks.contact-block";
 
 interface Base<
   T extends ComponentType,
@@ -32,7 +32,7 @@ interface Base<
   data?: D;
 }
 
-export type Block = HeroSectionProps | InfoBlockProps | AboutBlockProps | PrivacyBlockProps | FaqBlockProps;
+export type Block = HeroSectionProps | InfoBlockProps | AboutBlockProps | PrivacyBlockProps | FaqBlockProps | ContactBlockProps;
 
 export interface HeroSectionProps extends Base<"blocks.hero-section"> {
   heading: string;
@@ -65,4 +65,12 @@ export interface FaqBlockProps extends Base<"blocks.faq-block"> {
   reversed?: boolean;
   headline: string;
   content: string;
+}
+
+export interface ContactBlockProps extends Base<"blocks.contact-block"> {
+  headline: string;
+  content: string;
+  image: ImageProps;
+  buttonText: string;
+  cta?: LinkProps[];
 }

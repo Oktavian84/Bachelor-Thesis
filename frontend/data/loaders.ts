@@ -71,6 +71,15 @@ const pageBySlugQuery = (slug: string) => qs.stringify({
         "blocks.faq-block": {
           populate: "*",
         },
+        "blocks.contact-block": {
+          populate: {
+            image: {
+              fields: ["url", "alternativeText"],
+            },
+            cta: true,
+          },
+          fields: ["headline", "name", "number", "email", "buttonText", "content"],
+        },
       },
     },
   },

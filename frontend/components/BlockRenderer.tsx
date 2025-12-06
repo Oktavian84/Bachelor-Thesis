@@ -5,6 +5,7 @@ import { InfoBlock } from "@/components/blocks/InfoBlock";
 import { AboutBlock } from "@/components/blocks/AboutBlock";
 import { PrivacyBlock } from "@/components/blocks/PrivacyBlock";
 import { FaqBlock } from "@/components/blocks/FaqBlock";
+import { ContactBlock } from "@/components/blocks/ContactBlock";
 
 function blockRenderer(block: Block, index: number, allBlocks: Block[]) {
   switch (block.__component) {
@@ -24,6 +25,8 @@ function blockRenderer(block: Block, index: number, allBlocks: Block[]) {
           {faqBlocks.map((b, i) => <FaqBlock key={i} {...b} />)}
         </div>
       );
+    case "blocks.contact-block":
+      return <ContactBlock {...block} key={index} />;
     default:
       return null;
   }
