@@ -80,6 +80,17 @@ const pageBySlugQuery = (slug: string) => qs.stringify({
           },
           fields: ["headline", "name", "number", "email", "buttonText", "content"],
         },
+        "blocks.exhibition-block": {
+          populate: {
+            exhibition: {
+              populate: {
+                image: {
+                  fields: ["url", "alternativeText"],
+                },
+              },
+            },
+          },
+        },
       },
     },
   },

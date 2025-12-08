@@ -6,6 +6,7 @@ import { AboutBlock } from "@/components/blocks/AboutBlock";
 import { PrivacyBlock } from "@/components/blocks/PrivacyBlock";
 import { FaqBlock } from "@/components/blocks/FaqBlock";
 import { ContactBlock } from "@/components/blocks/ContactBlock";
+import { ExhibitionBlock } from "@/components/blocks/ExhibitionBlock";
 
 function blockRenderer(block: Block, index: number, allBlocks: Block[]) {
   switch (block.__component) {
@@ -27,6 +28,8 @@ function blockRenderer(block: Block, index: number, allBlocks: Block[]) {
       );
     case "blocks.contact-block":
       return <ContactBlock {...block} key={index} />;
+    case "blocks.exhibition-block":
+      return <ExhibitionBlock {...block} key={index} />;
     default:
       return null;
   }

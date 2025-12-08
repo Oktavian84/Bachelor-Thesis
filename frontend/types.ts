@@ -17,7 +17,7 @@ export interface LogoProps {
   image: ImageProps;
 }
 
-type ComponentType = "blocks.hero-section" | "blocks.info-block" | "blocks.about-block" | "blocks.privacy-block" | "blocks.faq-block" | "blocks.contact-block";
+type ComponentType = "blocks.hero-section" | "blocks.info-block" | "blocks.about-block" | "blocks.privacy-block" | "blocks.faq-block" | "blocks.contact-block" | "blocks.exhibition-block";
 
 interface Base<
   T extends ComponentType,
@@ -32,7 +32,7 @@ interface Base<
   data?: D;
 }
 
-export type Block = HeroSectionProps | InfoBlockProps | AboutBlockProps | PrivacyBlockProps | FaqBlockProps | ContactBlockProps;
+export type Block = HeroSectionProps | InfoBlockProps | AboutBlockProps | PrivacyBlockProps | FaqBlockProps | ContactBlockProps | ExhibitionBlockProps;
 
 export interface HeroSectionProps extends Base<"blocks.hero-section"> {
   heading: string;
@@ -73,4 +73,21 @@ export interface ContactBlockProps extends Base<"blocks.contact-block"> {
   image: ImageProps;
   buttonText: string;
   cta?: LinkProps[];
+}
+
+export interface Exhibition {
+  id: number;
+  documentId: string;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  location?: string;
+  image: ImageProps;
+  slug: string;
+  isActive: boolean;
+}
+
+export interface ExhibitionBlockProps extends Base<"blocks.exhibition-block"> {
+  exhibition: Exhibition;
 }

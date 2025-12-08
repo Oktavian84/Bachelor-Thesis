@@ -29,6 +29,27 @@ export interface BlocksContactBlock extends Struct.ComponentSchema {
   };
 }
 
+export interface BlocksExhibitionBlock extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_exhibition_blocks';
+  info: {
+    displayName: 'Exhibition Block';
+  };
+  attributes: {
+    exhibition: Schema.Attribute.Relation<
+      'oneToOne',
+      'api::exhibition.exhibition'
+    >;
+  };
+}
+
+export interface BlocksExibitionBlock extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_exibition_blocks';
+  info: {
+    displayName: 'Exibition Block';
+  };
+  attributes: {};
+}
+
 export interface BlocksFaqBlock extends Struct.ComponentSchema {
   collectionName: 'components_blocks_faq_blocks';
   info: {
@@ -131,6 +152,8 @@ declare module '@strapi/strapi' {
     export interface ComponentSchemas {
       'blocks.about-block': BlocksAboutBlock;
       'blocks.contact-block': BlocksContactBlock;
+      'blocks.exhibition-block': BlocksExhibitionBlock;
+      'blocks.exibition-block': BlocksExibitionBlock;
       'blocks.faq-block': BlocksFaqBlock;
       'blocks.hero-section': BlocksHeroSection;
       'blocks.info-block': BlocksInfoBlock;

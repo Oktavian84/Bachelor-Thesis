@@ -1,0 +1,15 @@
+{
+  "collectionName": "components_blocks_exhibition_blocks",
+  "info": {
+    "displayName": "Exhibition Block"
+  },
+  "options": {},
+  "attributes": {
+    "exhibition": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::exhibition.exhibition"
+    }
+  },
+  "config": {}
+}

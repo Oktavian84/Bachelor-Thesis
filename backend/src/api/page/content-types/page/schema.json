@@ -25,7 +25,8 @@
         "blocks.about-block",
         "blocks.privacy-block",
         "blocks.faq-block",
-        "blocks.contact-block"
+        "blocks.contact-block",
+        "blocks.exhibition-block"
       ]
     },
     "slug": {
