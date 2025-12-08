@@ -1,7 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
+import emailjs from "@emailjs/browser";
 import { StrapiImage } from "../StrapiImage";
 import type { ContactBlockProps } from "@/types";
 
@@ -13,6 +14,60 @@ export function ContactBlock({
   cta,
 }: Readonly<ContactBlockProps>) {
   const [showForm, setShowForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<"success" | "error" | null>(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus(null);
+
+    try {
+      const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+      const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+      const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+
+      if (!serviceId || !templateId || !publicKey) {
+        throw new Error("EmailJS configuration is missing");
+      }
+
+      await emailjs.send(
+        serviceId,
+        templateId,
+        {
+          from_name: formData.name,
+          from_email: formData.email,
+          message: formData.message,
+        },
+        publicKey
+      );
+
+      setSubmitStatus("success");
+      setFormData({ name: "", email: "", message: "" });
+  
+      setTimeout(() => {
+        setShowForm(false);
+        setSubmitStatus(null);
+      }, 3000);
+    } catch (error) {
+      console.error("EmailJS error:", error);
+      setSubmitStatus("error");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   return (
     <section className="w-full bg-black flex items-center pt-30">
@@ -29,42 +84,79 @@ export function ContactBlock({
             </div>
           ) : (
             <div className="bg-white rounded-tr-[8rem] rounded-br-[8rem] p-12 h-full flex flex-col justify-center">
-              <form className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {submitStatus === "success" && (
+                  <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
+                    Message sent successfully!
+                  </div>
+                )}
+                {submitStatus === "error" && (
+                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+                    Failed to send message. Please try again.
+                  </div>
+                )}
                 <div>
-                  <label className="block text-black text-lg mb-2">Name</label>
+                  <label htmlFor="name" className="block text-black text-lg mb-2">
+                    Name
+                  </label>
                   <input
+                    id="name"
+                    name="name"
                     type="text"
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-black"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    disabled={isSubmitting}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-black disabled:opacity-50"
                   />
                 </div>
                 <div>
-                  <label className="block text-black text-lg mb-2">Email</label>
+                  <label htmlFor="email" className="block text-black text-lg mb-2">
+                    Email
+                  </label>
                   <input
+                    id="email"
+                    name="email"
                     type="email"
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-black"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    disabled={isSubmitting}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-black disabled:opacity-50"
                   />
                 </div>
                 <div>
-                  <label className="block text-black text-lg mb-2">Message</label>
+                  <label htmlFor="message" className="block text-black text-lg mb-2">
+                    Message
+                  </label>
                   <textarea
+                    id="message"
+                    name="message"
                     required
                     rows={6}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-black"
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    disabled={isSubmitting}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-black disabled:opacity-50"
                   />
                 </div>
                 <div className="flex gap-4">
                   <button
                     type="submit"
-                    className="bg-black text-white px-8 py-4 rounded-lg text-xl font-bold hover:bg-gray-800 transition-colors"
+                    disabled={isSubmitting}
+                    className="bg-black text-white px-8 py-4 rounded-lg text-xl font-bold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Send
+                    {isSubmitting ? "Sending..." : "Send"}
                   </button>
                   <button
                     type="button"
-                    onClick={() => setShowForm(false)}
-                    className="bg-gray-300 text-black px-8 py-4 rounded-lg text-xl font-bold hover:bg-gray-400 transition-colors"
+                    onClick={() => {
+                      setShowForm(false);
+                      setFormData({ name: "", email: "", message: "" });
+                      setSubmitStatus(null);
+                    }}
+                    disabled={isSubmitting}
+                    className="bg-gray-300 text-black px-8 py-4 rounded-lg text-xl font-bold hover:bg-gray-400 transition-colors disabled:opacity-50"
                   >
                     Cancel
                   </button>
