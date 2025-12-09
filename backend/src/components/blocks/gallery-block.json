@@ -1,0 +1,15 @@
+{
+  "collectionName": "components_blocks_gallery_blocks",
+  "info": {
+    "displayName": "Gallery Block"
+  },
+  "options": {},
+  "attributes": {
+    "gallery_items": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::gallery-item.gallery-item"
+    }
+  },
+  "config": {}
+}

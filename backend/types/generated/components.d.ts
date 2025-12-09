@@ -42,14 +42,6 @@ export interface BlocksExhibitionBlock extends Struct.ComponentSchema {
   };
 }
 
-export interface BlocksExibitionBlock extends Struct.ComponentSchema {
-  collectionName: 'components_blocks_exibition_blocks';
-  info: {
-    displayName: 'Exibition Block';
-  };
-  attributes: {};
-}
-
 export interface BlocksFaqBlock extends Struct.ComponentSchema {
   collectionName: 'components_blocks_faq_blocks';
   info: {
@@ -59,6 +51,19 @@ export interface BlocksFaqBlock extends Struct.ComponentSchema {
     content: Schema.Attribute.Text;
     headline: Schema.Attribute.String;
     reversed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+  };
+}
+
+export interface BlocksGalleryBlock extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_gallery_blocks';
+  info: {
+    displayName: 'Gallery Block';
+  };
+  attributes: {
+    gallery_items: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::gallery-item.gallery-item'
+    >;
   };
 }
 
@@ -153,8 +158,8 @@ declare module '@strapi/strapi' {
       'blocks.about-block': BlocksAboutBlock;
       'blocks.contact-block': BlocksContactBlock;
       'blocks.exhibition-block': BlocksExhibitionBlock;
-      'blocks.exibition-block': BlocksExibitionBlock;
       'blocks.faq-block': BlocksFaqBlock;
+      'blocks.gallery-block': BlocksGalleryBlock;
       'blocks.hero-section': BlocksHeroSection;
       'blocks.info-block': BlocksInfoBlock;
       'blocks.privacy-block': BlocksPrivacyBlock;

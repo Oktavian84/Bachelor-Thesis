@@ -91,6 +91,17 @@ const pageBySlugQuery = (slug: string) => qs.stringify({
             },
           },
         },
+        "blocks.gallery-block": {
+          populate: {
+            gallery_items: {
+              populate: {
+                image: {
+                  fields: ["url", "alternativeText"],
+                },
+              },
+            },
+          },
+        },
       },
     },
   },
