@@ -53,10 +53,11 @@ main {
 
 .gallery-image-container {
   position: relative;
-  width: 50vmin;
+  width: 40vmin;
   height: 65vmin;
   flex-shrink: 0;
   overflow: hidden;
+  border-radius: 1rem;
 }
 
 .gallery-image {

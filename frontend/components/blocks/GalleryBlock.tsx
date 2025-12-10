@@ -1,15 +1,17 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { StrapiImage } from "../StrapiImage";
 import type { GalleryBlockProps } from "@/types";
 
 const DRAG_ANIMATION_DURATION = 1200;
 const WHEEL_ANIMATION_DURATION = 50;
-const WHEEL_SENSITIVITY = 80;
+const WHEEL_SENSITIVITY = 50;
 
 export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [clickedImageRect, setClickedImageRect] = useState<DOMRect | null>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement | null>(null);
   const mouseDownAtRef = useRef<number>(0);
@@ -55,16 +57,29 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
     return 'touches' in e ? e.touches[0].clientX : e.clientX;
   };
 
-  const updateImagePositions = useCallback((percentage: number, duration: number) => {
+  const updateImagePositions = useCallback((duration: number) => {
     if (!trackRef.current) return;
+    
+    const viewportWidth = window.innerWidth;
+    const viewportCenter = viewportWidth / 2;
     
     const imageContainers = trackRef.current.querySelectorAll<HTMLElement>(".gallery-image-container");
     imageContainers.forEach((container) => {
       const img = container.querySelector<HTMLElement>("img");
       if (img) {
+       
+        const containerRect = container.getBoundingClientRect();
+        const containerCenter = containerRect.left + containerRect.width / 2;
+        const distanceFromCenter = containerCenter - viewportCenter;
+        const normalizedDistance = distanceFromCenter / viewportWidth;
+        const basePosition = 50;
+        const positionAdjustment = normalizedDistance * 30;
+        const objectPosition = basePosition + positionAdjustment;
+        const clampedPosition = Math.max(40, Math.min(100, objectPosition));
+        
         img.animate(
           {
-            objectPosition: `${100 + percentage}% center`,
+            objectPosition: `${clampedPosition}% center`,
           },
           { duration, fill: "forwards" }
         );
@@ -85,7 +100,7 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
       { duration, fill: "forwards" }
     );
 
-    updateImagePositions(nextPercentage, duration);
+    updateImagePositions(duration);
   }, [updateImagePositions]);
 
   const handleOnDown = useCallback((e: MouseEvent | TouchEvent) => {
@@ -133,11 +148,24 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
     prevPercentageRef.current = 0;
     trackRef.current.style.transform = 'translate(0%, -50%)';
     
+    const viewportWidth = window.innerWidth;
+    const viewportCenter = viewportWidth / 2;
+    
     const imageContainers = trackRef.current.querySelectorAll<HTMLElement>(".gallery-image-container");
     imageContainers.forEach((container) => {
       const img = container.querySelector<HTMLElement>("img");
       if (img) {
-        img.style.objectPosition = '100% center';
+        const containerRect = container.getBoundingClientRect();
+        const containerCenter = containerRect.left + containerRect.width / 2;
+        const distanceFromCenter = containerCenter - viewportCenter;
+        const normalizedDistance = distanceFromCenter / viewportWidth;
+        
+        const basePosition = 50;
+        const positionAdjustment = normalizedDistance * 30;
+        const objectPosition = basePosition + positionAdjustment;
+        const clampedPosition = Math.max(40, Math.min(100, objectPosition));
+        
+        img.style.objectPosition = `${clampedPosition}% center`;
       }
     });
   }, []);
@@ -171,8 +199,11 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
     };
   }, [handleWheel]);
 
-  const handleImageClick = (itemId: number) => {
+  const handleImageClick = (itemId: number, event: React.MouseEvent) => {
     if (mouseDownAtRef.current === 0) {
+      const clickedElement = event.currentTarget as HTMLElement;
+      const rect = clickedElement.getBoundingClientRect();
+      setClickedImageRect(rect);
       setSelectedImage(itemId);
       setIsLightboxOpen(true);
     }
@@ -181,17 +212,32 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
   const handleClose = () => {
     setIsLightboxOpen(false);
     setSelectedImage(null);
+    setClickedImageRect(null);
   };
 
   const handlePrevious = () => {
     if (currentIndex > 0) {
-      setSelectedImage(gallery_items[currentIndex - 1].id);
+     
+      const prevItem = gallery_items[currentIndex - 1];
+      const prevElement = trackRef.current?.querySelector(`[data-item-id="${prevItem.id}"]`) as HTMLElement;
+      if (prevElement) {
+        const rect = prevElement.getBoundingClientRect();
+        setClickedImageRect(rect);
+      }
+      setSelectedImage(prevItem.id);
     }
   };
 
   const handleNext = () => {
     if (currentIndex < gallery_items.length - 1) {
-      setSelectedImage(gallery_items[currentIndex + 1].id);
+      
+      const nextItem = gallery_items[currentIndex + 1];
+      const nextElement = trackRef.current?.querySelector(`[data-item-id="${nextItem.id}"]`) as HTMLElement;
+      if (nextElement) {
+        const rect = nextElement.getBoundingClientRect();
+        setClickedImageRect(rect);
+      }
+      setSelectedImage(nextItem.id);
     }
   };
 
@@ -215,7 +261,8 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
           {gallery_items.map((item) => (
             <div
               key={item.id}
-              onClick={() => handleImageClick(item.id)}
+              data-item-id={item.id}
+              onClick={(e) => handleImageClick(item.id, e)}
               className="gallery-image-container"
             >
               <StrapiImage
@@ -230,73 +277,196 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
         </div>
       </section>
 
-      {isLightboxOpen && selectedItem && (
-        <div
-          className="fixed inset-0 z-50 bg-black bg-opacity-95 flex items-center justify-center"
-          onClick={handleClose}
-        >
-          <div
-            className="relative w-full h-full flex items-center justify-center p-8"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
+      <AnimatePresence>
+        {isLightboxOpen && selectedItem && clickedImageRect && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ 
+                opacity: 0,
+                transition: { duration: 1.0 }
+              }}
+              transition={{ duration: 0.1 }}
+              className="fixed inset-0 z-50 bg-black"
               onClick={handleClose}
-              className="absolute top-8 right-8 text-white text-4xl font-bold hover:opacity-70 transition-opacity z-10"
-              aria-label="Close"
+            />
+            
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
             >
-              ×
-            </button>
-
-            {currentIndex > 0 && (
-              <button
-                onClick={handlePrevious}
-                className="absolute left-8 top-1/2 -translate-y-1/2 text-white text-4xl font-bold hover:opacity-70 transition-opacity z-10"
-                aria-label="Previous"
+              <div
+                className="w-full flex items-center justify-center pointer-events-auto"
+                onClick={(e) => e.stopPropagation()}
               >
-                ‹
-              </button>
-            )}
+                <motion.button
+                  initial={{
+                    x: clickedImageRect.right,
+                    y: clickedImageRect.top,
+                    scaleX: 0,
+                  }}
+                  animate={{
+                    x: 0,
+                    y: 0,
+                    scaleX: 1,
+                  }}
+                  exit={{
+                    x: clickedImageRect.right,
+                    y: clickedImageRect.top,
+                    scaleX: 0,
+                    opacity: 0,
+                    transition: {
+                      type: "tween",
+                      duration: 0.25,
+                      ease: "easeIn",
+                    },
+                  }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 200,
+                    damping: 25,
+                    mass: 0.8,
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleClose();
+                  }}
+                  className="absolute top-35 right-8 text-white text-4xl font-bold hover:opacity-70 transition-opacity z-100 cursor-pointer"
+                  style={{ 
+                    transformOrigin: "left center",
+                  }}
+                  aria-label="Close"
+                >
+                  ×
+                </motion.button>
 
-            {currentIndex < gallery_items.length - 1 && (
-              <button
-                onClick={handleNext}
-                className="absolute right-8 top-1/2 -translate-y-1/2 text-white text-4xl font-bold hover:opacity-70 transition-opacity z-10"
-                aria-label="Next"
-              >
-                ›
-              </button>
-            )}
-
-            <div className="flex flex-col lg:flex-row items-center justify-center gap-8 max-w-7xl w-full">
-              <div className="relative w-full lg:w-1/2 aspect-square max-h-[70vh]">
-                <StrapiImage
-                  src={selectedItem.image.url}
-                  alt={selectedItem.image.alternativeText || selectedItem.title}
-                  fill
-                  className="object-contain"
-                />
-              </div>
-
-              <div className="w-full lg:w-1/2 text-white space-y-6">
-                <h2 className="text-4xl md:text-5xl font-bold">{selectedItem.title}</h2>
-                <p className="text-lg md:text-xl leading-relaxed">{selectedItem.description}</p>
-                <div className="flex items-center justify-between pt-4 border-t border-white/20">
-                  <span className="text-3xl md:text-4xl font-bold">{selectedItem.price} SEK</span>
+                {currentIndex > 0 && (
                   <button
-                    onClick={() => {
-                      // TODO: Implement buy functionality
-                      console.log("Buy clicked for:", selectedItem.title);
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePrevious();
                     }}
-                    className="bg-white text-black px-8 py-4 rounded-lg text-xl font-bold hover:bg-gray-200 transition-colors"
+                    className="absolute left-8 top-1/2 -translate-y-1/2 text-white text-6xl font-bold hover:opacity-70 transition-opacity z-100 cursor-pointer py-8"
+                    aria-label="Previous"
                   >
-                    Buy
+                    ‹
                   </button>
+                )}
+
+                <div className="w-full flex">
+                  <motion.div
+                    initial={{
+                      x: clickedImageRect.left + clickedImageRect.width / 2 - window.innerWidth / 2,
+                      y: clickedImageRect.top + clickedImageRect.height / 2 - window.innerHeight / 2,
+                      width: clickedImageRect.width,
+                      height: clickedImageRect.height,
+                    }}
+                    animate={{
+                      x: 0,
+                      y: 0,
+                      width: "60%",
+                      height: "75vh",
+                    }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 200,
+                      damping: 25,
+                      mass: 0.8,
+                    }}
+                    exit={{
+                      x: clickedImageRect.left + clickedImageRect.width / 2 - window.innerWidth / 2,
+                      y: clickedImageRect.top + clickedImageRect.height / 2 - window.innerHeight / 2,
+                      width: clickedImageRect.width,
+                      height: clickedImageRect.height,
+                      opacity: 0,
+                      transition: {
+                        type: "tween",
+                        duration: 0.25,
+                        ease: "easeIn",
+                      },
+                    }}
+                    className="w-[60%] h-[75vh]"
+                  >
+                    <div className="relative w-full h-full rounded-tr-[8rem] rounded-br-[8rem] overflow-hidden">
+                      <StrapiImage
+                        src={selectedItem.image.url}
+                        alt={selectedItem.image.alternativeText || selectedItem.title}
+                        fill
+                        className="object-cover"
+                      />
+                      {currentIndex < gallery_items.length - 1 && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleNext();
+                          }}
+                          className="absolute right-8 top-1/2 -translate-y-1/2 text-white text-6xl font-bold hover:opacity-70 transition-opacity z-100 cursor-pointer py-8"
+                          aria-label="Next"
+                        >
+                          ›
+                        </button>
+                      )}
+                    </div>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{
+                      x: clickedImageRect.right,
+                      y: clickedImageRect.top + clickedImageRect.height / 2 - window.innerHeight / 2,
+                      scaleX: 0,
+                    }}
+                    animate={{
+                      x: 0,
+                      y: 0,
+                      scaleX: 1,
+                    }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 200,
+                      damping: 25,
+                      mass: 0.8,
+                    }}
+                    exit={{
+                      x: clickedImageRect.right,
+                      y: clickedImageRect.top + clickedImageRect.height / 2 - window.innerHeight / 2,
+                      scaleX: 0,
+                      opacity: 0,
+                      transition: {
+                        type: "tween",
+                        duration: 0.25,
+                        ease: "easeIn",
+                      },
+                    }}
+                    className="w-[35%] ml-auto"
+                    style={{ 
+                      transformOrigin: "left center",
+                    }}
+                  >
+                    <div className="p-12 h-[75vh] flex flex-col justify-center">
+                      <h2 className="text-white text-center text-4xl font-bold mb-8">{selectedItem.title}</h2>
+                      <div className="text-white md:text-lg text-center leading-relaxed mb-14 whitespace-pre-line">
+                        {selectedItem.description}
+                      </div>
+                      <div className="flex items-center justify-between pt-4 border-t border-black/20 mb-12">
+                        <span className="text-3xl md:text-2xl font-bold text-white">{selectedItem.price} SEK</span>
+                        <button
+                          onClick={() => {
+                            // TODO: Implement buy functionality
+                            console.log("Buy clicked for:", selectedItem.title);
+                          }}
+                          className="bg-white text-black px-8 py-2 rounded-lg text-xl font-bold hover:bg-gray-800 transition-colors"
+                        >
+                          Buy
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 }

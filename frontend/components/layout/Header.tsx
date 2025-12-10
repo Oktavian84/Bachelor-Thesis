@@ -18,7 +18,7 @@ export function Header({ data }: HeaderProps) {
 
   const { logo, navigation } = data;
   return (
-    <header className="absolute top-0 left-0 right-0 z-50 bg-transparent px-8 py-4">
+    <header className="absolute top-0 left-0 right-0 z-[60] bg-transparent px-8 py-4">
       <div className="flex items-center justify-between">
         <Link href="/" className="flex items-center">
           <div className="w-10 h-10 rounded-full overflow-hidden">
