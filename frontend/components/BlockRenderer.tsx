@@ -1,4 +1,4 @@
-import type { Block, FaqBlockProps } from "@/types";
+import type { Block, FaqBlockProps, GalleryBlockProps } from "@/types";
 
 import { HeroSection } from "@/components/blocks/HeroSection";
 import { InfoBlock } from "@/components/blocks/InfoBlock";
@@ -32,7 +32,17 @@ function blockRenderer(block: Block, index: number, allBlocks: Block[]) {
     case "blocks.exhibition-block":
       return <ExhibitionBlock {...block} key={index} />;
     case "blocks.gallery-block":
-      return <GalleryBlock {...block} key={index} />;
+      if (index > 0 && allBlocks[index - 1].__component === "blocks.gallery-block") return null;
+      const galleryBlocks = allBlocks.slice(index).filter(b => b.__component === "blocks.gallery-block") as GalleryBlockProps[];
+      // Combine all gallery_items from all gallery blocks into one array
+      const allGalleryItems = galleryBlocks.flatMap(b => b.gallery_items || []);
+      return (
+        <GalleryBlock 
+          key={index} 
+          {...galleryBlocks[0]} 
+          gallery_items={allGalleryItems}
+        />
+      );
     default:
       return null;
   }

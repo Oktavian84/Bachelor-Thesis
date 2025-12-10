@@ -20,7 +20,56 @@
 }
 
 body {
-  background: var(--background);
+  background: black;
   color: var(--foreground);
   font-family: var(--font-sans);
+}
+
+section {
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+main {
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+#image-track,
+.gallery-track {
+  display: flex;
+  gap: 5vmin;
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 40px);
+  transform: translate(0%, -50%);
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.gallery-image-container {
+  position: relative;
+  width: 50vmin;
+  height: 65vmin;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.gallery-image {
+  object-fit: cover;
+  object-position: 100% center;
+  pointer-events: none;
+}
+
+.gallery-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.gallery-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
