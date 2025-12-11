@@ -11,8 +11,8 @@ export function HeroSection({
 }: Readonly<HeroSectionProps>) {
   if (reversed) {
     return (
-      <section className="w-full">
-        <div className="bg-black py-6">
+      <section className="w-full -mt-5">
+        <div className="bg-black">
           <div className="container mx-auto px-8">
             <div className="flex flex-col gap-8">
               <div className="flex items-center justify-between">
@@ -49,7 +49,7 @@ export function HeroSection({
   }
 
   return (
-    <section className="relative w-full min-h-[90vh] overflow-hidden rounded-b-[10rem] shadow-lg shadow-amber-100/50 pt-24">
+    <section className="relative w-full min-h-[90vh] overflow-hidden rounded-b-[10rem] shadow-lg shadow-amber-100/50 pt-24 -mt-10">
       {/* Background Image */}
       <div className="absolute inset-0 w-full h-full rounded-b-[5rem] overflow-hidden">
         <StrapiImage

@@ -105,3 +105,12 @@ export interface GalleryItem {
 export interface GalleryBlockProps extends Base<"blocks.gallery-block"> {
   gallery_items: GalleryItem[];
 }
+
+export interface CartItem {
+  id: number;
+  documentId: string;
+  title: string;
+  image: ImageProps;
+  price: number;
+  slug: string;
+}

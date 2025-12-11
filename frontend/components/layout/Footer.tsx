@@ -1,7 +1,7 @@
+"use client";
 import type { LinkProps, LogoProps } from "@/types";
-
 import Link from "next/link";
-import { StrapiImage } from "../StrapiImage";
+import { usePathname } from "next/navigation";
 
 interface FooterProps {
   data: {
@@ -12,41 +12,41 @@ interface FooterProps {
 }
 
 export function Footer({ data }: FooterProps) {
+  const pathname = usePathname();
+  
   if (!data) return null;
 
-  const { logo, policies, copy } = data;
+  const { policies, copy } = data;
   return (
-    <footer className="bg-black px-8 py-6 z-[60] relative">
+    <footer className="bg-black px-8 py-6 z-60 relative">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <nav>
           <ul className="flex flex-row flex-wrap gap-6 justify-center md:justify-start">
-            {policies.map((item) => (
-              <li key={item.id}>
-                <Link
-                  href={item.href}
-                  target={item.isExternal ? "_blank" : "_self"}
-                  className="text-white text-lg hover:opacity-80 transition-opacity"
-                >
-                  {item.text}
-                </Link>
-              </li>
-            ))}
+            {policies.map((item) => {
+              const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+              return (
+                <li key={item.id} className="relative">
+                  <Link
+                    href={item.href}
+                    target={item.isExternal ? "_blank" : "_self"}
+                    className={`text-lg transition-all duration-300 relative group pb-1 px-3 py-1 rounded-tr-[8rem] rounded-tl-[8rem] rounded-br-[8rem] rounded-bl-[8rem] ${
+                      isActive
+                        ? "bg-white text-black"
+                        : "text-white hover:bg-white/40 hover:text-white"
+                    }`}
+                  >
+                    {item.text}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </nav>
 
         <div className="flex items-center gap-3">
-          <p className="text-white text-sm whitespace-nowrap">
+          <p className="text-white text-[0.7rem] whitespace-nowrap">
             &copy; {new Date().getFullYear()} {copy}
           </p>
-          <div className="w-7 h-7 rounded-full overflow-hidden shrink-0">
-            <StrapiImage
-              src={logo.image.url}
-              alt={logo.image.alternativeText || "No alternative text"}
-              width={40}
-              height={40}
-              className="object-cover w-full h-full"
-            />
-          </div>
         </div>
       </div>
     </footer>

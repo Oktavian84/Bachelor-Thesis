@@ -4,6 +4,7 @@ import "./globals.css";
 import { getGlobalSettings } from "@/data/loaders";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { CartProvider } from "@/contexts/CartContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,10 +35,11 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-full flex flex-col`}
       >
-        <Header data={header} />
-        <main className="flex-1">{children}</main>
-
-        <Footer data={footer} />
+        <CartProvider>
+          <Header data={header} />
+          <main className="flex-1 flex flex-col mt-5">{children}</main>
+          <Footer data={footer} />
+        </CartProvider>
       </body>
     </html>
   );

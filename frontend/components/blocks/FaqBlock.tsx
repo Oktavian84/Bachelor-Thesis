@@ -13,7 +13,7 @@ export function FaqBlock({
     <div
       className={`w-[30%] min-h-[65vh] bg-white p-16 mt-3 ${
         reversed
-          ? "rounded-tl-[8rem] rounded-tr-[8rem] rounded-bl-2xl rounded-br-2xl mt-35"
+          ? "rounded-tl-[8rem] rounded-tr-[8rem] rounded-bl-2xl rounded-br-2xl mt-25"
           : "rounded-br-[8rem] rounded-bl-[8rem] rounded-tl-2xl rounded-tr-2xl"
       }`}
     >

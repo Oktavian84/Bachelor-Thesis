@@ -8,7 +8,7 @@ export function PrivacyBlock({
   reversed,
 }: Readonly<PrivacyBlockProps>) {
   return (
-    <div className={`min-h-[35vh] w-full flex items-center bg-black mt-25 px-8  ${reversed ? 'justify-end' : 'justify-start'}`}>
+    <div className={`min-h-[35vh] w-full flex items-center bg-black mt-20 px-8  ${reversed ? 'justify-end' : 'justify-start'}`}>
       <div className={` min-h-[35vh] bg-white p-20 text-center ${
         reversed
           ? 'rounded-tl-[8rem] rounded-bl-4xl rounded-tr-[8rem] rounded-br-4xl'

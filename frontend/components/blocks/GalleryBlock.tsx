@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { StrapiImage } from "../StrapiImage";
 import type { GalleryBlockProps } from "@/types";
+import { useCart } from "@/contexts/CartContext";
 
 const DRAG_ANIMATION_DURATION = 1200;
 const WHEEL_ANIMATION_DURATION = 50;
@@ -17,6 +18,7 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
   const mouseDownAtRef = useRef<number>(0);
   const prevPercentageRef = useRef<number>(0);
   const percentageRef = useRef<number>(0);
+  const { addItem } = useCart();
 
   const selectedItem = selectedImage
     ? gallery_items.find((item) => item.id === selectedImage)
@@ -451,8 +453,17 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
                         <span className="text-3xl md:text-2xl font-bold text-white">{selectedItem.price} SEK</span>
                         <button
                           onClick={() => {
-                            // TODO: Implement buy functionality
-                            console.log("Buy clicked for:", selectedItem.title);
+                            if (selectedItem) {
+                              addItem({
+                                id: selectedItem.id,
+                                documentId: selectedItem.documentId,
+                                title: selectedItem.title,
+                                image: selectedItem.image,
+                                price: selectedItem.price,
+                                slug: selectedItem.slug,
+                              });
+                              setIsLightboxOpen(false);
+                            }
                           }}
                           className="bg-white text-black px-8 py-2 rounded-lg text-xl font-bold hover:bg-gray-800 transition-colors"
                         >
