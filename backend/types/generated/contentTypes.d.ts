@@ -622,9 +622,7 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'pending'>;
     paymentDetails: Schema.Attribute.JSON;
-    paypalOrderId: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.Unique;
+    paypalOrderId: Schema.Attribute.String & Schema.Attribute.Unique;
     publishedAt: Schema.Attribute.DateTime;
     shippingAdress: Schema.Attribute.JSON & Schema.Attribute.Required;
     totalAmount: Schema.Attribute.Integer & Schema.Attribute.Required;

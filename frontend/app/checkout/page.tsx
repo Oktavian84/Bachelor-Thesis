@@ -1,12 +1,16 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { StrapiImage } from "@/components/StrapiImage";
 import { createOrder } from "@/utils/orders";
+import PayPalButton from "@/components/PayPalButton";
 
 export default function CheckoutPage() {
   const { items, removeItem, getTotalPrice, clearCart } = useCart();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [createdOrderId, setCreatedOrderId] = useState<string | null>(null);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [paymentSuccess, setPaymentSuccess] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -16,7 +20,28 @@ export default function CheckoutPage() {
     country: "",
   });
 
-  if (items.length === 0) {
+  const totalPrice = getTotalPrice();
+
+  useEffect(() => {
+    if (paymentSuccess) {
+      const timer = setTimeout(() => {
+        setPaymentSuccess(null);
+        clearCart();
+        setFormData({
+          name: "",
+          email: "",
+          address: "",
+          city: "",
+          postalCode: "",
+          country: "",
+        });
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [paymentSuccess, clearCart]);
+
+  if (items.length === 0 && !paymentSuccess) {
     return (
       <div className="bg-black text-white flex-1 flex items-center justify-center">
         <div className="text-center">
@@ -25,8 +50,6 @@ export default function CheckoutPage() {
       </div>
     );
   }
-
-  const totalPrice = getTotalPrice();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -70,7 +93,6 @@ export default function CheckoutPage() {
       });
 
       if (!orderResponse || !orderResponse.data) {
-        console.error("Order creation failed - Full response:", JSON.stringify(orderResponse, null, 2));
         const errorMessage = orderResponse?.error?.message || 
                            orderResponse?.error?.error?.message || 
                            JSON.stringify(orderResponse?.error) ||
@@ -79,20 +101,9 @@ export default function CheckoutPage() {
         throw new Error(`Failed to create order: ${errorMessage}`);
       }
 
-      clearCart();
-
-      alert(`Order created successfully! Order ID: ${orderId}\n\nYou will be redirected to payment.`);
-      
-      setFormData({
-        name: "",
-        email: "",
-        address: "",
-        city: "",
-        postalCode: "",
-        country: "",
-      });
+      setCreatedOrderId(orderId);
+      setPaymentError(null);
     } catch (error) {
-      console.error("Error creating order:", error);
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
       alert(`Failed to create order: ${errorMessage}\n\nCheck the console for more details.`);
     } finally {
@@ -103,7 +114,17 @@ export default function CheckoutPage() {
   return (
     <div className="bg-black text-white px-8 flex-1 flex items-center justify-center min-h-0 mt-20">
       <div className="w-full my-auto px-10">
-        <div className="grid md:grid-cols-[2fr_1fr] gap-16">
+        {paymentSuccess ? (
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="mb-4 p-6 bg-green-500/20 border border-green-500 rounded">
+              <p className="text-green-400 font-semibold text-2xl mb-2">Payment Successful!</p>
+              <p className="text-lg text-white/70">Order ID: {paymentSuccess}</p>
+              <p className="text-lg text-white/70 mt-4">Thank you for your purchase!</p>
+            </div>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-[2fr_1fr] gap-16">
+          
           {/* Cart Items */}
           <div>
             <h2 className="text-2xl font-bold text-center mb-6">Cart Items</h2>
@@ -252,20 +273,85 @@ export default function CheckoutPage() {
               </div>
 
               <div className="mt-6">
-                <p className="text-white/70 mb-4">
-                  Payment will be processed through PayPal after you submit the order.*
-                </p>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-white text-black px-8 py-4 rounded-lg text-xl font-bold hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting ? "Creating Order..." : "Create Order"}
-                </button>
+                {!createdOrderId ? (
+                  <>
+                    <p className="text-white/70 mb-4">
+                      Fill in your shipping information and create an order to proceed with PayPal payment.*
+                    </p>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full bg-white text-black px-8 py-4 rounded-lg text-xl font-bold hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isSubmitting ? "Creating Order..." : "Create Order"}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {paymentSuccess ? (
+                      <div className="mb-4 p-4 bg-green-500/20 border border-green-500 rounded">
+                        <p className="text-green-400 font-semibold mb-1">Payment Successful!</p>
+                        <p className="text-sm text-white/70">Order ID: {paymentSuccess}</p>
+                        <p className="text-sm text-white/70 mt-2">Thank you for your purchase!</p>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="mb-4 p-4 bg-green-500/20 border border-green-500 rounded">
+                          <p className="text-green-400 font-semibold mb-1">Order Created!</p>
+                          <p className="text-sm text-white/70">Order ID: {createdOrderId}</p>
+                          <p className="text-sm text-white/70 mt-2">Complete your payment with PayPal below:</p>
+                        </div>
+                        {paymentError && (
+                          <div className="mb-4 p-4 bg-red-500/20 border border-red-500 rounded">
+                            <p className="text-red-400 font-semibold">Payment Error</p>
+                            <p className="text-sm text-white/70 mt-1">{paymentError}</p>
+                          </div>
+                        )}
+                        <PayPalButton
+                      orderId={createdOrderId}
+                      amount={totalPrice}
+                      currency="SEK"
+                      items={items.map((item) => ({
+                        title: item.title,
+                        price: item.price,
+                        quantity: 1,
+                      }))}
+                      shippingAddress={{
+                        address: formData.address,
+                        city: formData.city,
+                        postalCode: formData.postalCode,
+                        country: formData.country,
+                      }}
+                      onSuccess={(orderId) => {
+                        setPaymentSuccess(orderId);
+                        setPaymentError(null);
+                      }}
+                      onError={(error) => {
+                        setPaymentError(error.message || "Payment failed. Please try again.");
+                      }}
+                      onCancel={() => {
+                        setPaymentError("Payment was canceled. You can try again.");
+                      }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCreatedOrderId(null);
+                            setPaymentError(null);
+                          }}
+                          className="w-full mt-4 bg-white/10 text-white px-8 py-2 rounded-lg text-sm font-semibold hover:bg-white/20 transition-colors"
+                        >
+                          Cancel & Edit Order
+                        </button>
+                      </>
+                    )}
+                  </>
+                )}
               </div>
             </form>
           </div>
         </div>
+        )}
       </div>
     </div>
   );
