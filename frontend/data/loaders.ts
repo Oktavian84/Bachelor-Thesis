@@ -150,3 +150,4 @@ export async function getGlobalSettings() {
   url.search = globalSettingQuery;
   return fetchAPI(url.href, { method: "GET" });
 }
+

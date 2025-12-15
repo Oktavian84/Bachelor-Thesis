@@ -26,7 +26,24 @@ export async function fetchAPI(url: string, options: FetchAPIOptions) {
   try {
     const response = await fetch(url, headers);
     const contentType = response.headers.get("content-type");
-    if (contentType && contentType.includes("application/json") && response.ok) {
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      let errorData;
+      try {
+        errorData = JSON.parse(errorText);
+      } catch {
+        errorData = { message: errorText };
+      }
+      console.error(`API Error (${response.status}):`, errorData);
+      return { 
+        status: response.status, 
+        statusText: response.statusText,
+        error: errorData 
+      };
+    }
+    
+    if (contentType && contentType.includes("application/json")) {
       return await response.json();
     } else {
       return { status: response.status, statusText: response.statusText };

@@ -1,9 +1,20 @@
 "use client";
+import { useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { StrapiImage } from "@/components/StrapiImage";
+import { createOrder } from "@/utils/orders";
 
 export default function CheckoutPage() {
-  const { items, removeItem, getTotalPrice } = useCart();
+  const { items, removeItem, getTotalPrice, clearCart } = useCart();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    address: "",
+    city: "",
+    postalCode: "",
+    country: "",
+  });
 
   if (items.length === 0) {
     return (
@@ -16,6 +27,78 @@ export default function CheckoutPage() {
   }
 
   const totalPrice = getTotalPrice();
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+   
+      const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+
+      const orderResponse = await createOrder({
+        orderId,
+        orderStatus: "pending",
+        totalAmount: totalPrice,
+        currency: "SEK",
+        customerName: formData.name,
+        customerEmail: formData.email,
+        shippingAddress: {
+          address: formData.address,
+          city: formData.city,
+          postalCode: formData.postalCode,
+          country: formData.country,
+        },
+        items: items.map((item) => ({
+          id: item.id,
+          documentId: item.documentId,
+          title: item.title,
+          price: item.price,
+          image: {
+            url: item.image.url,
+            alternativeText: item.image.alternativeText,
+          },
+        })),
+      });
+
+      if (!orderResponse || !orderResponse.data) {
+        console.error("Order creation failed - Full response:", JSON.stringify(orderResponse, null, 2));
+        const errorMessage = orderResponse?.error?.message || 
+                           orderResponse?.error?.error?.message || 
+                           JSON.stringify(orderResponse?.error) ||
+                           orderResponse?.statusText || 
+                           "Unknown error";
+        throw new Error(`Failed to create order: ${errorMessage}`);
+      }
+
+      clearCart();
+
+      alert(`Order created successfully! Order ID: ${orderId}\n\nYou will be redirected to payment.`);
+      
+      setFormData({
+        name: "",
+        email: "",
+        address: "",
+        city: "",
+        postalCode: "",
+        country: "",
+      });
+    } catch (error) {
+      console.error("Error creating order:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      alert(`Failed to create order: ${errorMessage}\n\nCheck the console for more details.`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="bg-black text-white px-8 flex-1 flex items-center justify-center min-h-0 mt-20">
@@ -74,7 +157,7 @@ export default function CheckoutPage() {
           {/* Shipping Form & Payment */}
           <div>
             <h2 className="text-2xl font-bold mb-6 text-center">Shipping Information</h2>
-            <form className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label htmlFor="name" className="block mb-2">
                   Full Name
@@ -83,6 +166,8 @@ export default function CheckoutPage() {
                   type="text"
                   id="name"
                   name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
                   required
                   className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/50"
                   placeholder="John Doe"
@@ -96,6 +181,8 @@ export default function CheckoutPage() {
                   type="email"
                   id="email"
                   name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
                   required
                   className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/50"
                   placeholder="john@example.com"
@@ -109,6 +196,8 @@ export default function CheckoutPage() {
                   type="text"
                   id="address"
                   name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
                   required
                   className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/50"
                   placeholder="Street Address"
@@ -123,6 +212,8 @@ export default function CheckoutPage() {
                     type="text"
                     id="city"
                     name="city"
+                    value={formData.city}
+                    onChange={handleInputChange}
                     required
                     className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/50"
                     placeholder="City"
@@ -136,6 +227,8 @@ export default function CheckoutPage() {
                     type="text"
                     id="postalCode"
                     name="postalCode"
+                    value={formData.postalCode}
+                    onChange={handleInputChange}
                     required
                     className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/50"
                     placeholder="12345"
@@ -150,25 +243,27 @@ export default function CheckoutPage() {
                   type="text"
                   id="country"
                   name="country"
+                  value={formData.country}
+                  onChange={handleInputChange}
                   required
                   className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/50"
                   placeholder="Sweden"
                 />
               </div>
-            </form>
 
-            <div className="mt-6">
-              <p className="text-white/70 mb-4">
-                Payment will be processed through PayPal after you submit the order.*
-              </p>
-              <button
-                type="button"
-                className="w-full bg-white text-black px-8 py-4 rounded-lg text-xl font-bold hover:bg-gray-200 transition-colors"
-                disabled
-              >
-                Submit
-              </button>
-            </div>
+              <div className="mt-6">
+                <p className="text-white/70 mb-4">
+                  Payment will be processed through PayPal after you submit the order.*
+                </p>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full bg-white text-black px-8 py-4 rounded-lg text-xl font-bold hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? "Creating Order..." : "Create Order"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
