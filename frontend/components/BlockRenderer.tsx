@@ -1,4 +1,6 @@
-import type { Block, FaqBlockProps, GalleryBlockProps } from "@/types";
+'use client';
+
+import type { Block, FaqBlockProps, GalleryBlockProps, InfoBlockProps } from "@/types";
 
 import { HeroSection } from "@/components/blocks/HeroSection";
 import { InfoBlock } from "@/components/blocks/InfoBlock";
@@ -8,13 +10,34 @@ import { FaqBlock } from "@/components/blocks/FaqBlock";
 import { ContactBlock } from "@/components/blocks/ContactBlock";
 import { ExhibitionBlock } from "@/components/blocks/ExhibitionBlock";
 import { GalleryBlock } from "@/components/blocks/GalleryBlock";
+import { SculptureTransition } from "@/components/SculptureTransition";
 
 function blockRenderer(block: Block, index: number, allBlocks: Block[]) {
   switch (block.__component) {
     case "blocks.hero-section":
       return <HeroSection {...block} key={index} />;
     case "blocks.info-block":
-      return <InfoBlock {...block} key={index} />;
+      const infoBlock = block as InfoBlockProps;
+      const nextBlock = allBlocks[index + 1];
+      const isFirstInfoBlock = index === 0 || allBlocks[index - 1]?.__component !== "blocks.info-block";
+      const isSecondInfoBlock = nextBlock?.__component === "blocks.info-block" && isFirstInfoBlock;
+      
+      const firstBlockId = `info-block-${infoBlock.headline?.replace(/\s+/g, '-').toLowerCase() || 'default'}`;
+      const secondBlockId = isSecondInfoBlock 
+        ? `info-block-${(nextBlock as InfoBlockProps).headline?.replace(/\s+/g, '-').toLowerCase() || 'default'}` 
+        : '';
+      
+      return (
+        <div key={index}>
+          <InfoBlock {...infoBlock} />
+          {isFirstInfoBlock && isSecondInfoBlock && (
+            <SculptureTransition 
+              firstBlockId={firstBlockId}
+              secondBlockId={secondBlockId}
+            />
+          )}
+        </div>
+      );
     case "blocks.about-block":
       return <AboutBlock {...block} key={index} />;
     case "blocks.privacy-block":
@@ -34,7 +57,6 @@ function blockRenderer(block: Block, index: number, allBlocks: Block[]) {
     case "blocks.gallery-block":
       if (index > 0 && allBlocks[index - 1].__component === "blocks.gallery-block") return null;
       const galleryBlocks = allBlocks.slice(index).filter(b => b.__component === "blocks.gallery-block") as GalleryBlockProps[];
-      // Combine all gallery_items from all gallery blocks into one array
       const allGalleryItems = galleryBlocks.flatMap(b => b.gallery_items || []);
       return (
         <GalleryBlock 

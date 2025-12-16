@@ -7,8 +7,10 @@ export function InfoBlock({
   content,
   reversed = false,
 }: Readonly<InfoBlockProps>) {
+  const blockId = `info-block-${headline?.replace(/\s+/g, '-').toLowerCase() || 'default'}`;
+  
   return (
-    <section className="w-full min-h-[90vh] bg-black flex items-center pt-30 pb-30">
+    <section id={blockId} className="w-full min-h-[90vh] bg-black flex items-center pt-30 pb-30 relative">
       <div className={`w-[45%] min-h-[90vh] flex items-center ${reversed ? 'ml-auto' : ''}`}>
         <div className={`bg-white p-8 md:p-15 min-h-[60vh] flex items-center ${
           reversed 
