@@ -50,15 +50,21 @@
       "required": true
     },
     "shippingAdress": {
-      "type": "json",
+      "type": "component",
+      "repeatable": false,
+      "component": "elements.shipping-address",
       "required": true
     },
     "items": {
-      "type": "json",
+      "type": "component",
+      "repeatable": true,
+      "component": "elements.order-item",
       "required": true
     },
     "paymentDetails": {
-      "type": "json"
+      "type": "component",
+      "repeatable": false,
+      "component": "elements.payment-details"
     }
   }
 }

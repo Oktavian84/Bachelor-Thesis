@@ -1,0 +1,28 @@
+{
+  "collectionName": "components_elements_order_items",
+  "info": {
+    "displayName": "Order Item"
+  },
+  "options": {},
+  "attributes": {
+    "itemId": {
+      "type": "integer"
+    },
+    "galleryItemDocumentId": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "price": {
+      "type": "integer",
+      "required": true
+    },
+    "image": {
+      "type": "json"
+    }
+  },
+  "config": {}
+}
+

@@ -129,6 +129,47 @@ export interface ElementsLogo extends Struct.ComponentSchema {
   };
 }
 
+export interface ElementsOrderItem extends Struct.ComponentSchema {
+  collectionName: 'components_elements_order_items';
+  info: {
+    displayName: 'Order Item';
+  };
+  attributes: {
+    galleryItemDocumentId: Schema.Attribute.String;
+    image: Schema.Attribute.JSON;
+    itemId: Schema.Attribute.Integer;
+    price: Schema.Attribute.Integer & Schema.Attribute.Required;
+    title: Schema.Attribute.String & Schema.Attribute.Required;
+  };
+}
+
+export interface ElementsPaymentDetails extends Struct.ComponentSchema {
+  collectionName: 'components_elements_payment_details';
+  info: {
+    displayName: 'Payment Details';
+  };
+  attributes: {
+    completedAt: Schema.Attribute.String;
+    failedAt: Schema.Attribute.String;
+    payerEmail: Schema.Attribute.String;
+    paypalOrderId: Schema.Attribute.String;
+    status: Schema.Attribute.String;
+  };
+}
+
+export interface ElementsShippingAddress extends Struct.ComponentSchema {
+  collectionName: 'components_elements_shipping_addresses';
+  info: {
+    displayName: 'Shipping Address';
+  };
+  attributes: {
+    address: Schema.Attribute.String & Schema.Attribute.Required;
+    city: Schema.Attribute.String & Schema.Attribute.Required;
+    country: Schema.Attribute.String & Schema.Attribute.Required;
+    postalCode: Schema.Attribute.String & Schema.Attribute.Required;
+  };
+}
+
 export interface LayoutFooter extends Struct.ComponentSchema {
   collectionName: 'components_layout_footers';
   info: {
@@ -165,6 +206,9 @@ declare module '@strapi/strapi' {
       'blocks.privacy-block': BlocksPrivacyBlock;
       'elements.link': ElementsLink;
       'elements.logo': ElementsLogo;
+      'elements.order-item': ElementsOrderItem;
+      'elements.payment-details': ElementsPaymentDetails;
+      'elements.shipping-address': ElementsShippingAddress;
       'layout.footer': LayoutFooter;
       'layout.header': LayoutHeader;
     }

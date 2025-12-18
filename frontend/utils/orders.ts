@@ -40,13 +40,19 @@ export async function createOrder(orderData: CreateOrderData) {
     currency: orderData.currency || "SEK",
     customerName: orderData.customerName,
     customerEmail: orderData.customerEmail,
-    shippingAdress: JSON.stringify(orderData.shippingAddress),
-    items: JSON.stringify(orderData.items),
+    shippingAdress: orderData.shippingAddress,
+    items: orderData.items.map((item) => ({
+      itemId: item.id,
+      galleryItemDocumentId: item.documentId,
+      title: item.title,
+      price: item.price,
+      image: item.image,
+    })),
     paypalOrderId: orderData.paypalOrderId || "",
   };
 
   if (orderData.paymentDetails) {
-    requestData.paymentDetails = JSON.stringify(orderData.paymentDetails);
+    requestData.paymentDetails = orderData.paymentDetails;
   }
 
   const response = await fetchAPI(url.href, {

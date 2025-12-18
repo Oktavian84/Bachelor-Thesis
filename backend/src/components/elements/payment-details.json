@@ -1,0 +1,26 @@
+{
+  "collectionName": "components_elements_payment_details",
+  "info": {
+    "displayName": "Payment Details"
+  },
+  "options": {},
+  "attributes": {
+    "paypalOrderId": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "completedAt": {
+      "type": "string"
+    },
+    "failedAt": {
+      "type": "string"
+    },
+    "payerEmail": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}
+

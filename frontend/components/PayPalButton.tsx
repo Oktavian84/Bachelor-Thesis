@@ -1,7 +1,34 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { createPayPalOrder, capturePayPalOrder } from "@/utils/paypal";
+
+function hidePayPalOverlay() {
+  const selectors = [
+    '[data-zoid-paypal-buttons-container]',
+    '.zoid-outlet',
+    '[data-zoid]',
+    'iframe[src*="paypal"]',
+    '[id*="paypal"]',
+    '[class*="paypal"]',
+    '[class*="zoid"]'
+  ];
+  
+  selectors.forEach(selector => {
+    try {
+      document.querySelectorAll(selector).forEach(el => {
+        const htmlEl = el as HTMLElement;
+        htmlEl.style.display = 'none';
+        htmlEl.style.visibility = 'hidden';
+        htmlEl.style.opacity = '0';
+        htmlEl.style.pointerEvents = 'none';
+      });
+    } catch {
+      // Ignore errors when hiding elements
+    }
+  });
+}
 
 interface PayPalButtonProps {
   orderId: string;
@@ -33,10 +60,39 @@ export default function PayPalButton({
   onError,
   onCancel,
 }: PayPalButtonProps) {
+  const [isPaymentComplete, setIsPaymentComplete] = useState(false);
+  const observerRef = useRef<MutationObserver | null>(null);
   const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
 
   if (!clientId) {
     throw new Error('NEXT_PUBLIC_PAYPAL_CLIENT_ID is not configured');
+  }
+
+  useEffect(() => {
+    if (isPaymentComplete) {
+      hidePayPalOverlay();
+      
+      observerRef.current = new MutationObserver(() => {
+        hidePayPalOverlay();
+      });
+      
+      observerRef.current.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['class', 'id', 'data-zoid']
+      });
+      
+      return () => {
+        if (observerRef.current) {
+          observerRef.current.disconnect();
+        }
+      };
+    }
+  }, [isPaymentComplete]);
+
+  if (isPaymentComplete) {
+    return null;
   }
 
   return (
@@ -74,16 +130,25 @@ export default function PayPalButton({
         }}
         onApprove={async (data) => {
           try {
+            setIsPaymentComplete(true);
+            hidePayPalOverlay();
+            
+            if (onSuccess) {
+              onSuccess(data.orderID);
+            }
+            
             const result = await capturePayPalOrder({
               orderId: data.orderID,
             });
 
-            if (result.success && onSuccess) {
-              onSuccess(result.order.id);
-            } else if (onError) {
-              onError(new Error("Payment capture failed"));
+            if (!result.success) {
+              setIsPaymentComplete(false);
+              if (onError) {
+                onError(new Error("Payment capture failed"));
+              }
             }
           } catch (error) {
+            setIsPaymentComplete(false);
             if (onError) {
               onError(error instanceof Error ? error : new Error(String(error)));
             }

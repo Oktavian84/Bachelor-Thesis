@@ -609,7 +609,8 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
       Schema.Attribute.DefaultTo<'SEK'>;
     customerEmail: Schema.Attribute.String & Schema.Attribute.Required;
     customerName: Schema.Attribute.String & Schema.Attribute.Required;
-    items: Schema.Attribute.JSON & Schema.Attribute.Required;
+    items: Schema.Attribute.Component<'elements.order-item', true> &
+      Schema.Attribute.Required;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::order.order'> &
       Schema.Attribute.Private;
@@ -621,10 +622,17 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'pending'>;
-    paymentDetails: Schema.Attribute.JSON;
+    paymentDetails: Schema.Attribute.Component<
+      'elements.payment-details',
+      false
+    >;
     paypalOrderId: Schema.Attribute.String & Schema.Attribute.Unique;
     publishedAt: Schema.Attribute.DateTime;
-    shippingAdress: Schema.Attribute.JSON & Schema.Attribute.Required;
+    shippingAdress: Schema.Attribute.Component<
+      'elements.shipping-address',
+      false
+    > &
+      Schema.Attribute.Required;
     totalAmount: Schema.Attribute.Integer & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &

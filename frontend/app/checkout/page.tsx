@@ -4,6 +4,7 @@ import { useCart } from "@/contexts/CartContext";
 import { StrapiImage } from "@/components/StrapiImage";
 import { createOrder } from "@/utils/orders";
 import PayPalButton from "@/components/PayPalButton";
+import emailjs from "@emailjs/browser";
 
 export default function CheckoutPage() {
   const { items, removeItem, getTotalPrice, clearCart } = useCart();
@@ -64,7 +65,6 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
-   
       const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
       const orderResponse = await createOrder({
@@ -322,9 +322,39 @@ export default function CheckoutPage() {
                         postalCode: formData.postalCode,
                         country: formData.country,
                       }}
-                      onSuccess={(orderId) => {
+                      onSuccess={async (orderId) => {
                         setPaymentSuccess(orderId);
                         setPaymentError(null);
+                        
+                        const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+                        const templateId = process.env.NEXT_PUBLIC_EMAILJS_ORDER_TEMPLATE_ID;
+                        const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+
+                        if (serviceId && templateId && publicKey) {
+                          const orders = items.map(item => ({
+                            name: item.title,
+                            units: '1',
+                            price: `${item.price} SEK`
+                          }));
+
+                          emailjs.send(
+                            serviceId,
+                            templateId,
+                            {
+                              email: formData.email,
+                              order_id: orderId,
+                              total_amount: `${totalPrice} SEK`,
+                              orders: orders,
+                              site_name: 'CINC ART',
+                              customer_name: formData.name,
+                              shipping_address: formData.address,
+                              shipping_city: formData.city,
+                              shipping_postal_code: formData.postalCode,
+                              shipping_country: formData.country
+                            },
+                            publicKey
+                          ).catch(() => {});
+                        }
                       }}
                       onError={(error) => {
                         setPaymentError(error.message || "Payment failed. Please try again.");
