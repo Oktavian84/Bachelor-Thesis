@@ -1,89 +1,100 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { Sculpture3D } from './Sculpture3D';
+import { useScrollSnap } from '@/contexts/ScrollSnapContext';
 
 interface SculptureTransitionProps {
   firstBlockId: string;
   secondBlockId: string;
 }
 
-const MOVEMENT_START = 0.2;
-const FADE_IN_THRESHOLD = 0.1;
+const MOVEMENT_START = 0.05;
 
 export function SculptureTransition({ firstBlockId, secondBlockId }: SculptureTransitionProps) {
   const [scrollProgress, setScrollProgress] = useState(-1);
+  const { hasSnapped } = useScrollSnap();
+  const hasSnappedRef = useRef(hasSnapped);
+  const scrollProgressRef = useRef(-1);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const firstBlock = document.getElementById(firstBlockId);
-      const secondBlock = document.getElementById(secondBlockId);
-      
-      if (!firstBlock || !secondBlock) {
-        setScrollProgress(-1);
-        return;
-      }
+    hasSnappedRef.current = hasSnapped;
+  }, [hasSnapped]);
 
-      const scrollTop = window.scrollY;
-      const windowHeight = window.innerHeight;
-      const firstBlockOffset = firstBlock.offsetTop;
-      const secondBlockOffset = secondBlock.offsetTop;
-      const firstRect = firstBlock.getBoundingClientRect();
-      const secondRect = secondBlock.getBoundingClientRect();
-      const secondBlockBottom = secondBlockOffset + secondRect.height;
-      
-      const isBeforeFirstBlock = scrollTop < firstBlockOffset - 100;
-      const isAfterSecondBlock = secondRect.bottom < windowHeight * 0.7 || 
-                                 scrollTop > secondBlockBottom - windowHeight * 0.4;
-      const isOutOfViewport = firstRect.top > windowHeight || secondRect.bottom < 0;
-      
-      if (isBeforeFirstBlock || isAfterSecondBlock || isOutOfViewport) {
-        setScrollProgress(-1);
-        return;
-      }
-
-      const totalDistance = secondBlockOffset - firstBlockOffset;
-      const traveledDistance = scrollTop - firstBlockOffset;
-      const progress = totalDistance > 0 
-        ? Math.max(0, Math.min(1, traveledDistance / totalDistance))
-        : 0;
-      
-      setScrollProgress(progress);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [firstBlockId, secondBlockId]);
-
-  const { isVisible, opacity, movementProgress } = useMemo(() => {
-    const visible = scrollProgress >= 0 && scrollProgress <= 1;
-    const fadeIn = Math.min(1, scrollProgress / FADE_IN_THRESHOLD);
-    const movement = scrollProgress < MOVEMENT_START
-      ? 0
-      : (scrollProgress - MOVEMENT_START) / (1 - MOVEMENT_START);
-    
-    return {
-      isVisible: visible,
-      opacity: visible ? fadeIn : 0,
-      movementProgress: Math.max(0, Math.min(1, movement))
-    };
+  useEffect(() => {
+    scrollProgressRef.current = scrollProgress;
   }, [scrollProgress]);
 
-  if (!isVisible) {
-    return null;
-  }
+  const handleScroll = useCallback(() => {
+    if (hasSnappedRef.current && scrollProgressRef.current < 0) {
+      setScrollProgress(0);
+    }
+
+    const firstBlock = document.getElementById(firstBlockId);
+    const secondBlock = document.getElementById(secondBlockId);
+    
+    if (!firstBlock || !secondBlock) {
+      if (!hasSnappedRef.current) {
+        setScrollProgress(-1);
+      }
+      return;
+    }
+
+    const scrollTop = window.scrollY;
+    const windowHeight = window.innerHeight;
+    const firstBlockOffset = firstBlock.offsetTop;
+    const secondBlockOffset = secondBlock.offsetTop;
+    const firstRect = firstBlock.getBoundingClientRect();
+    const secondRect = secondBlock.getBoundingClientRect();
+    const secondBlockBottom = secondBlockOffset + secondRect.height;
+    
+    const isBeforeFirstBlock = scrollTop < firstBlockOffset - 100;
+    const isAfterSecondBlock = secondRect.bottom < windowHeight * 0.7 || scrollTop > secondBlockBottom - windowHeight * 0.4;
+    const isOutOfViewport = firstRect.top > windowHeight || secondRect.bottom < 0;
+    
+    if (isBeforeFirstBlock || isAfterSecondBlock || isOutOfViewport) {
+      setScrollProgress(-1);
+      return;
+    }
+
+    const totalDistance = secondBlockOffset - firstBlockOffset;
+    const traveledDistance = scrollTop - firstBlockOffset;
+    const progress = totalDistance > 0 ? Math.max(0, Math.min(1, traveledDistance / totalDistance)) : 0;
+    
+    setScrollProgress(progress);
+  }, [firstBlockId, secondBlockId]);
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    requestAnimationFrame(() => {
+      handleScroll();
+    });
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
+
+  const movementProgress = useMemo(() => {
+    if (!hasSnapped || scrollProgress < 0) return 0;
+    
+    if (scrollProgress < MOVEMENT_START) return 0;
+    return Math.max(0, Math.min(1, (scrollProgress - MOVEMENT_START) / (1 - MOVEMENT_START)));
+  }, [scrollProgress, hasSnapped]);
 
   return (
     <div 
       className="fixed inset-0 pointer-events-none z-10"
-      style={{ opacity, transition: 'opacity 0.3s ease-in-out' }}
+      style={{ 
+        opacity: hasSnapped ? 1 : 0,
+        transition: hasSnapped ? 'opacity 0.2s ease-in-out' : 'opacity 0s'
+      }}
     >
       <div className="absolute inset-0 flex items-center">
         <div 
           className="w-[55%] h-full absolute"
-          style={{ right: `${movementProgress * 45}%` }}
+          style={{ 
+            right: `${movementProgress * 45}%`,
+            top: '-3%'
+          }}
         >
           <Sculpture3D 
             modelPath="/models/abstract_shape.glb" 

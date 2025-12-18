@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useGLTF, Environment } from '@react-three/drei';
 import * as THREE from 'three';
@@ -19,7 +19,8 @@ function SculptureModel({ modelPath, scrollProgress }: SculptureModelProps) {
   const [rotation, setRotation] = useState({ x: 0, y: 0 });
   const isDragging = useRef(false);
   const lastMousePos = useRef({ x: 0, y: 0 });
-  const scrollRotation = scrollProgress * Math.PI;
+  
+  const scrollRotation = useMemo(() => scrollProgress * Math.PI, [scrollProgress]);
 
   const handleMouseDown = useCallback((e: MouseEvent) => {
     isDragging.current = true;

@@ -28,13 +28,18 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
     ? gallery_items.findIndex((item) => item.id === selectedItem.id)
     : -1;
 
+  const handleClose = useCallback(() => {
+    setIsLightboxOpen(false);
+    setSelectedImage(null);
+    setClickedImageRect(null);
+  }, []);
+
   useEffect(() => {
     if (!isLightboxOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        setIsLightboxOpen(false);
-        setSelectedImage(null);
+        handleClose();
       } else if (e.key === "ArrowLeft" && currentIndex > 0) {
         setSelectedImage(gallery_items[currentIndex - 1].id);
       } else if (e.key === "ArrowRight" && currentIndex < gallery_items.length - 1) {
@@ -42,9 +47,19 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
       }
     };
 
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      handleClose();
+    };
+
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isLightboxOpen, currentIndex, gallery_items]);
+    window.addEventListener("wheel", handleWheel, { passive: false });
+    
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("wheel", handleWheel);
+    };
+  }, [isLightboxOpen, currentIndex, gallery_items, handleClose]);
 
   useEffect(() => {
     if (isLightboxOpen) {
@@ -211,12 +226,6 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
     }
   };
 
-  const handleClose = () => {
-    setIsLightboxOpen(false);
-    setSelectedImage(null);
-    setClickedImageRect(null);
-  };
-
   const handlePrevious = () => {
     if (currentIndex > 0) {
      
@@ -301,49 +310,18 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
                 className="w-full flex items-center justify-center pointer-events-auto"
                 onClick={(e) => e.stopPropagation()}
               >
-                <motion.button
-                  initial={{
-                    x: clickedImageRect.right,
-                    y: clickedImageRect.top,
-                    scaleX: 0,
-                  }}
-                  animate={{
-                    x: 0,
-                    y: 0,
-                    scaleX: 1,
-                  }}
-                  exit={{
-                    x: clickedImageRect.right,
-                    y: clickedImageRect.top,
-                    scaleX: 0,
-                    opacity: 0,
-                    transition: {
-                      type: "tween",
-                      duration: 0.25,
-                      ease: "easeIn",
-                    },
-                  }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 200,
-                    damping: 25,
-                    mass: 0.8,
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleClose();
-                  }}
-                  className="absolute top-35 right-8 text-white text-4xl font-bold hover:opacity-70 transition-opacity z-100 cursor-pointer"
-                  style={{ 
-                    transformOrigin: "left center",
-                  }}
-                  aria-label="Close"
-                >
-                  ×
-                </motion.button>
-
                 {currentIndex > 0 && (
-                  <button
+                  <motion.button
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{
+                      opacity: 0,
+                      transition: {
+                        type: "tween",
+                        duration: 0.25,
+                        ease: "easeIn",
+                      },
+                    }}
                     onClick={(e) => {
                       e.stopPropagation();
                       handlePrevious();
@@ -352,7 +330,7 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
                     aria-label="Previous"
                   >
                     ‹
-                  </button>
+                  </motion.button>
                 )}
 
                 <div className="w-full flex">
@@ -397,7 +375,17 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
                         className="object-cover"
                       />
                       {currentIndex < gallery_items.length - 1 && (
-                        <button
+                        <motion.button
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{
+                            opacity: 0,
+                            transition: {
+                              type: "tween",
+                              duration: 0.25,
+                              ease: "easeIn",
+                            },
+                          }}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleNext();
@@ -406,7 +394,7 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
                           aria-label="Next"
                         >
                           ›
-                        </button>
+                        </motion.button>
                       )}
                     </div>
                   </motion.div>

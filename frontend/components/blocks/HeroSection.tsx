@@ -1,55 +1,14 @@
-import Link from "next/link";
 import { StrapiImage } from "../StrapiImage";
 import type { HeroSectionProps } from "@/types";
 
 export function HeroSection({
-  cta,
   heading,
   image,
   description,
-  reversed,
 }: Readonly<HeroSectionProps>) {
-  if (reversed) {
-    return (
-      <section className="w-full -mt-5">
-        <div className="bg-black">
-          <div className="container mx-auto px-8">
-            <div className="flex flex-col gap-8">
-              <div className="flex items-center justify-between">
-                <h1 className="text-white text-7xl font-bold">{heading}</h1>
-                {cta && (
-                  <button className="bg-white text-black px-4 py-2 rounded-4xl font-bold text-md hover:bg-gray-200 transition-colors whitespace-nowrap">
-                    <Link href={cta.href} target={cta.isExternal ? "_blank" : "_self"}>
-                      {cta.text}
-                    </Link>
-                  </button>
-                )}
-              </div>
-              {description && (
-                <p className="text-rose-300 text-4xl leading-relaxed whitespace-pre-line max-w-md text-center">
-                  {description}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <section className="relative w-full min-h-[75vh] overflow-hidden rounded-t-[10rem]">
-          <div className="absolute inset-0 w-full h-full rounded-t-[5rem] overflow-hidden">
-            <StrapiImage
-              src={image.url}
-              alt={image.alternativeText || "No alternative text provided"}
-              className="object-cover"
-              fill
-            />
-          </div>
-        </section>
-      </section>
-    );
-  }
 
   return (
-    <section className="relative w-full min-h-[90vh] overflow-hidden rounded-b-[10rem] shadow-lg shadow-amber-100/50 pt-24 -mt-10">
+    <section className="relative w-full min-h-[90vh] overflow-hidden rounded-b-[10rem] shadow-lg shadow-amber-100/50 pt-24 -mt-10 mb-30" style={{ scrollSnapAlign: 'none' }}>
       {/* Background Image */}
       <div className="absolute inset-0 w-full h-full rounded-b-[5rem] overflow-hidden">
         <StrapiImage

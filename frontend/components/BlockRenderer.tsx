@@ -11,6 +11,7 @@ import { ContactBlock } from "@/components/blocks/ContactBlock";
 import { ExhibitionBlock } from "@/components/blocks/ExhibitionBlock";
 import { GalleryBlock } from "@/components/blocks/GalleryBlock";
 import { SculptureTransition } from "@/components/SculptureTransition";
+import { ScrollSnapHandler } from "@/components/ScrollSnapHandler";
 
 function blockRenderer(block: Block, index: number, allBlocks: Block[]) {
   switch (block.__component) {
@@ -22,6 +23,15 @@ function blockRenderer(block: Block, index: number, allBlocks: Block[]) {
       const isFirstInfoBlock = index === 0 || allBlocks[index - 1]?.__component !== "blocks.info-block";
       const isSecondInfoBlock = nextBlock?.__component === "blocks.info-block" && isFirstInfoBlock;
       
+      // Count InfoBlocks to identify block 2
+      let infoBlockCount = 0;
+      for (let i = 0; i <= index; i++) {
+        if (allBlocks[i]?.__component === "blocks.info-block") {
+          infoBlockCount++;
+        }
+      }
+      const isBlock2 = infoBlockCount === 2;
+      
       const firstBlockId = `info-block-${infoBlock.headline?.replace(/\s+/g, '-').toLowerCase() || 'default'}`;
       const secondBlockId = isSecondInfoBlock 
         ? `info-block-${(nextBlock as InfoBlockProps).headline?.replace(/\s+/g, '-').toLowerCase() || 'default'}` 
@@ -29,12 +39,17 @@ function blockRenderer(block: Block, index: number, allBlocks: Block[]) {
       
       return (
         <div key={index}>
-          <InfoBlock {...infoBlock} />
-          {isFirstInfoBlock && isSecondInfoBlock && (
-            <SculptureTransition 
-              firstBlockId={firstBlockId}
-              secondBlockId={secondBlockId}
-            />
+          <InfoBlock {...infoBlock} isFirstBlock={isFirstInfoBlock} isReversed={isBlock2} />
+          {isFirstInfoBlock && (
+            <>
+              <ScrollSnapHandler firstInfoBlockId={firstBlockId} />
+              {isSecondInfoBlock && (
+                <SculptureTransition 
+                  firstBlockId={firstBlockId}
+                  secondBlockId={secondBlockId}
+                />
+              )}
+            </>
           )}
         </div>
       );
