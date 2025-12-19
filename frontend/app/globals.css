@@ -79,3 +79,34 @@ main {
   scrollbar-width: none;
 }
 
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset;
+  -webkit-text-fill-color: black;
+}
+
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+textarea:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset;
+  -webkit-text-fill-color: black;
+}
+
+input[data-checkout-input]:-webkit-autofill,
+input[data-checkout-input]:-webkit-autofill:hover,
+input[data-checkout-input]:-webkit-autofill:focus,
+input[data-checkout-input]:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.1) inset;
+  -webkit-text-fill-color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+  caret-color: white;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+input[data-checkout-input] {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+

@@ -5,6 +5,10 @@ import ReactMarkdown from "react-markdown";
 import emailjs from "@emailjs/browser";
 import { StrapiImage } from "../StrapiImage";
 import type { ContactBlockProps } from "@/types";
+import { contactFormSchema, type ContactFormData } from "@/utils/validation";
+import { ZodError } from "zod";
+import { formatZodErrors } from "@/utils/form-helpers";
+import { FormInput } from "@/components/FormInput";
 
 export function ContactBlock({
   headline,
@@ -21,13 +25,18 @@ export function ContactBlock({
     email: "",
     message: "",
   });
+  const [errors, setErrors] = useState<Partial<Record<keyof ContactFormData, string>>>({});
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus(null);
+    setErrors({});
 
     try {
+      const validatedData = contactFormSchema.parse(formData);
+
       const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
       const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
       const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
@@ -40,23 +49,28 @@ export function ContactBlock({
         serviceId,
         templateId,
         {
-          from_name: formData.name,
-          from_email: formData.email,
-          message: formData.message,
+          from_name: validatedData.name,
+          from_email: validatedData.email,
+          message: validatedData.message,
         },
         publicKey
       );
 
       setSubmitStatus("success");
       setFormData({ name: "", email: "", message: "" });
+      setErrors({});
   
       setTimeout(() => {
         setShowForm(false);
         setSubmitStatus(null);
       }, 3000);
     } catch (error) {
-      console.error("EmailJS error:", error);
-      setSubmitStatus("error");
+      if (error instanceof ZodError) {
+        setErrors(formatZodErrors<ContactFormData>(error));
+      } else {
+        console.error("EmailJS error:", error);
+        setSubmitStatus("error");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -67,6 +81,18 @@ export function ContactBlock({
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    if (errors[name as keyof ContactFormData]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const handleFocus = (fieldName: string) => {
+    setFocusedField(fieldName);
+  };
+
+  const handleBlur = () => {
+    setFocusedField(null);
   };
 
   return (
@@ -84,7 +110,7 @@ export function ContactBlock({
             </div>
           ) : (
             <div className="bg-white rounded-tr-[8rem] rounded-br-[8rem] p-12 h-full flex flex-col justify-center">
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} noValidate className="space-y-6">
                 {submitStatus === "success" && (
                   <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
                     Message sent successfully!
@@ -99,45 +125,49 @@ export function ContactBlock({
                   <label htmlFor="name" className="block text-black text-lg mb-2">
                     Name
                   </label>
-                  <input
-                    id="name"
+                  <FormInput
                     name="name"
-                    type="text"
-                    required
                     value={formData.name}
+                    error={errors.name}
+                    focusedField={focusedField}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
                     onChange={handleInputChange}
                     disabled={isSubmitting}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-black disabled:opacity-50"
+                    defaultPlaceholder="Enter your name"
                   />
                 </div>
                 <div>
                   <label htmlFor="email" className="block text-black text-lg mb-2">
                     Email
                   </label>
-                  <input
-                    id="email"
+                  <FormInput
                     name="email"
-                    type="email"
-                    required
                     value={formData.email}
+                    error={errors.email}
+                    focusedField={focusedField}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
                     onChange={handleInputChange}
                     disabled={isSubmitting}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-black disabled:opacity-50"
+                    defaultPlaceholder="Enter your email"
                   />
                 </div>
                 <div>
                   <label htmlFor="message" className="block text-black text-lg mb-2">
                     Message
                   </label>
-                  <textarea
-                    id="message"
+                  <FormInput
                     name="message"
-                    required
-                    rows={6}
                     value={formData.message}
+                    error={errors.message}
+                    focusedField={focusedField}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
                     onChange={handleInputChange}
                     disabled={isSubmitting}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-black disabled:opacity-50"
+                    defaultPlaceholder="Enter your message (minimum 10 characters)"
+                    isTextarea
                   />
                 </div>
                 <div className="flex gap-4">
@@ -154,6 +184,7 @@ export function ContactBlock({
                       setShowForm(false);
                       setFormData({ name: "", email: "", message: "" });
                       setSubmitStatus(null);
+                      setErrors({});
                     }}
                     disabled={isSubmitting}
                     className="bg-gray-300 text-black px-8 py-4 rounded-lg text-xl font-bold hover:bg-gray-400 transition-colors disabled:opacity-50"

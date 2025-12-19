@@ -6,8 +6,9 @@ import type { GalleryBlockProps } from "@/types";
 import { useCart } from "@/contexts/CartContext";
 
 const DRAG_ANIMATION_DURATION = 1200;
-const WHEEL_ANIMATION_DURATION = 50;
+const WHEEL_ANIMATION_DURATION = 200;
 const WHEEL_SENSITIVITY = 50;
+const WHEEL_THROTTLE_MS = 16; // ~60fps
 
 export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
@@ -18,6 +19,8 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
   const mouseDownAtRef = useRef<number>(0);
   const prevPercentageRef = useRef<number>(0);
   const percentageRef = useRef<number>(0);
+  const wheelThrottleRef = useRef<number>(0);
+  const animationFrameRef = useRef<number | null>(null);
   const { addItem } = useCart();
 
   const selectedItem = selectedImage
@@ -108,16 +111,22 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
     if (!trackRef.current) return;
 
     percentageRef.current = nextPercentage;
-    const duration = useSmoothAnimation ? WHEEL_ANIMATION_DURATION : DRAG_ANIMATION_DURATION;
+    
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
 
-    trackRef.current.animate(
-      {
-        transform: `translate(${nextPercentage}%, -50%)`,
-      },
-      { duration, fill: "forwards" }
-    );
-
-    updateImagePositions(duration);
+    animationFrameRef.current = requestAnimationFrame(() => {
+      if (!trackRef.current) return;
+      
+      const duration = useSmoothAnimation ? WHEEL_ANIMATION_DURATION : DRAG_ANIMATION_DURATION;
+      
+      // Use CSS transition for smoother animation
+      trackRef.current.style.transition = `transform ${duration}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`;
+      trackRef.current.style.transform = `translate(${nextPercentage}%, -50%)`;
+      
+      updateImagePositions(duration);
+    });
   }, [updateImagePositions]);
 
   const handleOnDown = useCallback((e: MouseEvent | TouchEvent) => {
@@ -148,6 +157,12 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
     
     e.preventDefault();
     
+    const now = Date.now();
+    if (now - wheelThrottleRef.current < WHEEL_THROTTLE_MS) {
+      return;
+    }
+    wheelThrottleRef.current = now;
+    
     const delta = e.deltaX !== 0 ? e.deltaX : e.deltaY;
     const percentageChange = (delta / WHEEL_SENSITIVITY) * -1;
     
@@ -164,6 +179,7 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
     percentageRef.current = 0;
     prevPercentageRef.current = 0;
     trackRef.current.style.transform = 'translate(0%, -50%)';
+    trackRef.current.style.transition = 'none';
     
     const viewportWidth = window.innerWidth;
     const viewportCenter = viewportWidth / 2;
@@ -185,6 +201,12 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
         img.style.objectPosition = `${clampedPosition}% center`;
       }
     });
+    
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {

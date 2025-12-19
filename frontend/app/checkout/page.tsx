@@ -5,6 +5,10 @@ import { StrapiImage } from "@/components/StrapiImage";
 import { createOrder } from "@/utils/orders";
 import PayPalButton from "@/components/PayPalButton";
 import emailjs from "@emailjs/browser";
+import { checkoutFormSchema, type CheckoutFormData } from "@/utils/validation";
+import { ZodError } from "zod";
+import { formatZodErrors } from "@/utils/form-helpers";
+import { FormInput } from "@/components/FormInput";
 
 export default function CheckoutPage() {
   const { items, removeItem, getTotalPrice, clearCart } = useCart();
@@ -20,6 +24,8 @@ export default function CheckoutPage() {
     postalCode: "",
     country: "",
   });
+  const [errors, setErrors] = useState<Partial<Record<keyof CheckoutFormData, string>>>({});
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   const totalPrice = getTotalPrice();
 
@@ -36,6 +42,7 @@ export default function CheckoutPage() {
           postalCode: "",
           country: "",
         });
+        setErrors({});
       }, 5000);
 
       return () => clearTimeout(timer);
@@ -52,19 +59,35 @@ export default function CheckoutPage() {
     );
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
+    
+    if (errors[name as keyof CheckoutFormData]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const handleFocus = (fieldName: string) => {
+    setFocusedField(fieldName);
+  };
+
+  const handleBlur = () => {
+    setFocusedField(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrors({});
 
     try {
+     
+      const validatedData = checkoutFormSchema.parse(formData);
+
       const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
       const orderResponse = await createOrder({
@@ -72,13 +95,13 @@ export default function CheckoutPage() {
         orderStatus: "pending",
         totalAmount: totalPrice,
         currency: "SEK",
-        customerName: formData.name,
-        customerEmail: formData.email,
+        customerName: validatedData.name,
+        customerEmail: validatedData.email,
         shippingAddress: {
-          address: formData.address,
-          city: formData.city,
-          postalCode: formData.postalCode,
-          country: formData.country,
+          address: validatedData.address,
+          city: validatedData.city,
+          postalCode: validatedData.postalCode,
+          country: validatedData.country,
         },
         items: items.map((item) => ({
           id: item.id,
@@ -104,8 +127,12 @@ export default function CheckoutPage() {
       setCreatedOrderId(orderId);
       setPaymentError(null);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
-      alert(`Failed to create order: ${errorMessage}\n\nCheck the console for more details.`);
+      if (error instanceof ZodError) {
+        setErrors(formatZodErrors<CheckoutFormData>(error));
+      } else {
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        alert(`Failed to create order: ${errorMessage}\n\nCheck the console for more details.`);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -178,50 +205,56 @@ export default function CheckoutPage() {
           {/* Shipping Form & Payment */}
           <div>
             <h2 className="text-2xl font-bold mb-6 text-center">Shipping Information</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} noValidate className="space-y-4">
               <div>
                 <label htmlFor="name" className="block mb-2">
                   Full Name
                 </label>
-                <input
-                  type="text"
-                  id="name"
+                <FormInput
+                  variant="dark"
                   name="name"
                   value={formData.name}
+                  error={errors.name}
+                  focusedField={focusedField}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
                   onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/50"
-                  placeholder="John Doe"
+                  disabled={isSubmitting}
+                  defaultPlaceholder="John Doe"
                 />
               </div>
               <div>
                 <label htmlFor="email" className="block mb-2">
                   Email
                 </label>
-                <input
-                  type="email"
-                  id="email"
+                <FormInput
+                  variant="dark"
                   name="email"
                   value={formData.email}
+                  error={errors.email}
+                  focusedField={focusedField}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
                   onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/50"
-                  placeholder="john@example.com"
+                  disabled={isSubmitting}
+                  defaultPlaceholder="john@example.com"
                 />
               </div>
               <div>
                 <label htmlFor="address" className="block mb-2">
                   Address
                 </label>
-                <input
-                  type="text"
-                  id="address"
+                <FormInput
+                  variant="dark"
                   name="address"
                   value={formData.address}
+                  error={errors.address}
+                  focusedField={focusedField}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
                   onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/50"
-                  placeholder="Street Address"
+                  disabled={isSubmitting}
+                  defaultPlaceholder="Street Address"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -229,30 +262,34 @@ export default function CheckoutPage() {
                   <label htmlFor="city" className="block mb-2">
                     City
                   </label>
-                  <input
-                    type="text"
-                    id="city"
+                  <FormInput
+                  variant="dark"
                     name="city"
                     value={formData.city}
+                    error={errors.city}
+                    focusedField={focusedField}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
                     onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/50"
-                    placeholder="City"
+                    disabled={isSubmitting}
+                    defaultPlaceholder="City"
                   />
                 </div>
                 <div>
                   <label htmlFor="postalCode" className="block mb-2">
                     Postal Code
                   </label>
-                  <input
-                    type="text"
-                    id="postalCode"
+                  <FormInput
+                  variant="dark"
                     name="postalCode"
                     value={formData.postalCode}
+                    error={errors.postalCode}
+                    focusedField={focusedField}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
                     onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/50"
-                    placeholder="12345"
+                    disabled={isSubmitting}
+                    defaultPlaceholder="12345"
                   />
                 </div>
               </div>
@@ -260,15 +297,17 @@ export default function CheckoutPage() {
                 <label htmlFor="country" className="block mb-2">
                   Country
                 </label>
-                <input
-                  type="text"
-                  id="country"
+                <FormInput
+                  variant="dark"
                   name="country"
                   value={formData.country}
+                  error={errors.country}
+                  focusedField={focusedField}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
                   onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded text-white placeholder-white/50 focus:outline-none focus:border-white/50"
-                  placeholder="Sweden"
+                  disabled={isSubmitting}
+                  defaultPlaceholder="Sweden"
                 />
               </div>
 

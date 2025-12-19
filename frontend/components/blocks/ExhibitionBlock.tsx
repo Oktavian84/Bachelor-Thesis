@@ -3,6 +3,10 @@ import { useState, FormEvent } from "react";
 import ReactMarkdown from "react-markdown";
 import { StrapiImage } from "../StrapiImage";
 import type { ExhibitionBlockProps } from "@/types";
+import { exhibitionFormSchema, type ExhibitionFormData } from "@/utils/validation";
+import { ZodError } from "zod";
+import { formatZodErrors } from "@/utils/form-helpers";
+import { FormInput } from "@/components/FormInput";
 
 export function ExhibitionBlock({
   exhibition,
@@ -10,22 +14,27 @@ export function ExhibitionBlock({
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<"success" | "error" | "warning" | null>(null);
-  const [formData, setFormData] = useState({ name: "", email: ""});
+  const [formData, setFormData] = useState({ name: "", email: "" });
+  const [errors, setErrors] = useState<Partial<Record<keyof ExhibitionFormData, string>>>({});
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus(null);
+    setErrors({});
 
     try {
+      const validatedData = exhibitionFormSchema.parse(formData);
+
       const response = await fetch("/api/bookings", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
+          name: validatedData.name,
+          email: validatedData.email,
           exhibitionId: exhibition.documentId || exhibition.id,
         }),
       });
@@ -44,21 +53,38 @@ export function ExhibitionBlock({
       }
       
       setFormData({ name: "", email: "" });
+      setErrors({});
 
       setTimeout(() => {
         setShowForm(false);
         setSubmitStatus(null);
       }, 3000);
-    } catch {
-      setSubmitStatus("error");
+    } catch (error) {
+      if (error instanceof ZodError) {
+        setErrors(formatZodErrors<ExhibitionFormData>(error));
+      } else {
+        setSubmitStatus("error");
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    if (errors[name as keyof ExhibitionFormData]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const handleFocus = (fieldName: string) => {
+    setFocusedField(fieldName);
+  };
+
+  const handleBlur = () => {
+    setFocusedField(null);
   };
 
   const formatDate = (dateString: string) => {
@@ -125,7 +151,7 @@ export function ExhibitionBlock({
             </div>
           ) : (
             <div className="bg-white rounded-tl-[8rem] rounded-bl-[8rem] p-12 h-full flex flex-col justify-center">
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} noValidate className="space-y-6">
                 {submitStatus === "success" && (
                   <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
                     Thank you! Your booking has been registered.
@@ -145,30 +171,32 @@ export function ExhibitionBlock({
                   <label htmlFor="name" className="block text-black text-lg mb-2">
                     Name
                   </label>
-                  <input
-                    id="name"
+                  <FormInput
                     name="name"
-                    type="text"
-                    required
                     value={formData.name}
+                    error={errors.name}
+                    focusedField={focusedField}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
                     onChange={handleInputChange}
                     disabled={isSubmitting}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-black disabled:opacity-50"
+                    defaultPlaceholder="Enter your name"
                   />
                 </div>
                 <div>
                   <label htmlFor="email" className="block text-black text-lg mb-2">
                     Email
                   </label>
-                  <input
-                    id="email"
+                  <FormInput
                     name="email"
-                    type="email"
-                    required
                     value={formData.email}
+                    error={errors.email}
+                    focusedField={focusedField}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
                     onChange={handleInputChange}
                     disabled={isSubmitting}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-black disabled:opacity-50"
+                    defaultPlaceholder="Enter your email"
                   />
                 </div>
                 <div className="flex gap-4">
@@ -185,6 +213,7 @@ export function ExhibitionBlock({
                       setShowForm(false);
                       setFormData({ name: "", email: "" });
                       setSubmitStatus(null);
+                      setErrors({});
                     }}
                     disabled={isSubmitting}
                     className="bg-gray-300 text-black px-8 py-4 rounded-lg text-xl font-bold hover:bg-gray-400 transition-colors disabled:opacity-50"
