@@ -32,14 +32,14 @@ async function loader() {
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const { header, footer } = await loader();
   return (
-    <html lang="en" className="h-full">
+    <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full flex flex-col`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col`}
       >
               <CartProvider>
                 <ScrollSnapProvider>
                   <Header data={header} />
-                  <main className="flex-1 flex flex-col mt-5">{children}</main>
+                  <main className="flex-1 flex flex-col justify-center sm:justify-start mt-0 sm:mt-5">{children}</main>
                   <Footer data={footer} />
                 </ScrollSnapProvider>
               </CartProvider>

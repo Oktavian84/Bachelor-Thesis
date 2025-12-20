@@ -1,7 +1,7 @@
 "use client";
 import type { LinkProps, LogoProps } from "@/types";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { StrapiImage } from "../StrapiImage";
 import { useCart } from "@/contexts/CartContext";
@@ -18,15 +18,23 @@ export function Header({ data }: HeaderProps) {
   const pathname = usePathname();
   const { getItemCount } = useCart();
 
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.setAttribute('data-menu-open', 'true');
+    } else {
+      document.body.removeAttribute('data-menu-open');
+    }
+  }, [isMenuOpen]);
+
   if (!data) return null;
 
   const { logo, navigation } = data;
   const cartItemCount = getItemCount();
   return (
-    <header className="absolute top-0 left-0 right-0 z-[60] bg-transparent px-8 py-4">
+    <header className={`absolute top-0 left-0 right-0 z-60 px-8 py-4 ${isMenuOpen ? 'bg-black rounded-b-[5rem] md:rounded-b-[10rem] overflow-hidden' : 'bg-transparent'}`}>
       <div className="flex items-center justify-between">
         <Link href="/" className="flex items-center">
-          <div className="w-10 h-10 rounded-full overflow-hidden">
+          <div className="w-10 h-10 rounded-lg overflow-hidden">
             <StrapiImage
               src={logo.image.url}
               alt={logo.image.alternativeText || "No alternative text provided"}
@@ -37,7 +45,7 @@ export function Header({ data }: HeaderProps) {
           </div>
         </Link>
         
-        <nav className="hidden sm:block">
+        <nav className="hidden md:block">
           <ul className="flex items-center gap-8">
             {navigation.map((item) => {
               const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
@@ -86,7 +94,7 @@ export function Header({ data }: HeaderProps) {
 
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="sm:hidden text-white focus:outline-none"
+          className="md:hidden text-white focus:outline-none"
           aria-label="Toggle menu"
         >
           <svg
@@ -108,8 +116,8 @@ export function Header({ data }: HeaderProps) {
       </div>
 
       {isMenuOpen && (
-        <nav className="sm:hidden mt-4">
-          <ul className="flex flex-row flex-wrap gap-6 justify-center">
+        <nav className="md:hidden mt-4 pb-4">
+          <ul className="flex flex-col gap-6 items-center">
             {navigation.map((item) => {
               const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
               return (

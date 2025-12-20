@@ -82,7 +82,7 @@ export function SculptureTransition({ firstBlockId, secondBlockId }: SculptureTr
 
   return (
     <div 
-      className="fixed inset-0 pointer-events-none z-10"
+      className="fixed inset-0 pointer-events-none z-10 hidden xl:block"
       style={{ 
         opacity: hasSnapped ? 1 : 0,
         transition: hasSnapped ? 'opacity 0.2s ease-in-out' : 'opacity 0s'

@@ -8,7 +8,7 @@ import { useCart } from "@/contexts/CartContext";
 const DRAG_ANIMATION_DURATION = 1200;
 const WHEEL_ANIMATION_DURATION = 200;
 const WHEEL_SENSITIVITY = 50;
-const WHEEL_THROTTLE_MS = 16; // ~60fps
+const WHEEL_THROTTLE_MS = 16;
 
 export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
@@ -51,8 +51,10 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
     };
 
     const handleWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      handleClose();
+      if (window.innerWidth >= 1280) {
+        e.preventDefault();
+        handleClose();
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -67,10 +69,91 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
   useEffect(() => {
     if (isLightboxOpen) {
       document.body.style.overflow = "hidden";
+      
+      if (window.innerWidth < 1280) {
+        const header = document.querySelector('header') as HTMLElement | null;
+        const footer = document.querySelector('footer') as HTMLElement | null;
+        const closeButton = document.querySelector('.close-button-sm') as HTMLElement | null;
+        const lightboxContainer = document.querySelector('.lightbox-container') as HTMLElement | null;
+        
+        if (footer) {
+          footer.style.opacity = '0';
+          footer.style.pointerEvents = 'none';
+        }
+        
+        const updateUI = () => {
+          if (!lightboxContainer) return;
+          
+          const scrollTop = lightboxContainer.scrollTop;
+          const scrollHeight = lightboxContainer.scrollHeight;
+          const clientHeight = lightboxContainer.clientHeight;
+          const isNearBottom = scrollTop + clientHeight >= scrollHeight - 50;
+          const isMenuOpen = document.body.getAttribute('data-menu-open') === 'true';
+          
+          if (header) {
+            header.style.transform = scrollTop > 15 ? 'translateY(-100%)' : 'translateY(0)';
+          }
+          
+          if (closeButton) {
+            const shouldHide = scrollTop > 15 || isMenuOpen;
+            closeButton.style.opacity = shouldHide ? '0' : '1';
+            closeButton.style.pointerEvents = shouldHide ? 'none' : 'auto';
+          }
+          
+          if (footer) {
+            footer.style.opacity = isNearBottom ? '1' : '0';
+            footer.style.pointerEvents = isNearBottom ? 'auto' : 'none';
+          }
+        };
+        
+        updateUI();
+        
+        if (lightboxContainer) {
+          lightboxContainer.addEventListener('scroll', updateUI);
+        }
+        
+        const menuObserver = new MutationObserver(() => {
+          requestAnimationFrame(updateUI);
+        });
+        menuObserver.observe(document.body, {
+          attributes: true,
+          attributeFilter: ['data-menu-open']
+        });
+        
+        return () => {
+          if (lightboxContainer) {
+            lightboxContainer.removeEventListener('scroll', updateUI);
+          }
+          menuObserver.disconnect();
+          
+          if (header) header.style.transform = '';
+          if (footer) {
+            footer.style.opacity = '';
+            footer.style.pointerEvents = '';
+          }
+          if (closeButton) {
+            closeButton.style.opacity = '';
+            closeButton.style.pointerEvents = '';
+          }
+        };
+      }
+    } else {
+      document.body.style.overflow = "";
+      
+      const header = document.querySelector('header') as HTMLElement | null;
+      const footer = document.querySelector('footer') as HTMLElement | null;
+      const closeButton = document.querySelector('.close-button-sm') as HTMLElement | null;
+      
+      if (header) header.style.transform = '';
+      if (footer) {
+        footer.style.opacity = '';
+        footer.style.pointerEvents = '';
+      }
+      if (closeButton) {
+        closeButton.style.opacity = '';
+        closeButton.style.pointerEvents = '';
+      }
     }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
   }, [isLightboxOpen]);
 
   const getClientX = (e: MouseEvent | TouchEvent): number => {
@@ -121,7 +204,6 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
       
       const duration = useSmoothAnimation ? WHEEL_ANIMATION_DURATION : DRAG_ANIMATION_DURATION;
       
-      // Use CSS transition for smoother animation
       trackRef.current.style.transition = `transform ${duration}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`;
       trackRef.current.style.transform = `translate(${nextPercentage}%, -50%)`;
       
@@ -284,11 +366,11 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
 
   return (
     <>
-      <section ref={sectionRef} className="w-full bg-black relative overflow-hidden" style={{ height: 'calc(100vh - 100px)' }}>
+      <section ref={sectionRef} className="w-full bg-black relative overflow-hidden h-[calc(100vh-200px)] sm:h-[calc(100vh-100px)]">
         <div 
           ref={trackRef}
           id="image-track"
-          className="gallery-track"
+          className="gallery-track max-[639px]:top-1/2"
           style={{ transform: 'translate(0%, -50%)' }}
         >
           {gallery_items.map((item) => (
@@ -296,7 +378,7 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
               key={item.id}
               data-item-id={item.id}
               onClick={(e) => handleImageClick(item.id, e)}
-              className="gallery-image-container"
+              className="gallery-image-container w-[65vw] h-[calc(65vw*1.625)] sm:w-[40vmin] sm:h-[65vmin]"
             >
               <StrapiImage
                 src={item.image.url}
@@ -322,40 +404,38 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
               }}
               transition={{ duration: 0.1 }}
               className="fixed inset-0 z-50 bg-black"
-              onClick={handleClose}
+              onClick={() => {
+                if (window.innerWidth >= 1280) {
+                  handleClose();
+                }
+              }}
             />
             
+            {isLightboxOpen && (
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0, transition: { duration: 0 } }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleClose();
+                }}
+                className="close-button-sm fixed top-25 right-8 w-8 h-8 rounded-full p-0 bg-white z-100 text-black text-3xl font-bold hover:opacity-70 transition-opacity xl:hidden pointer-events-auto flex items-center justify-center leading-none"
+                aria-label="Close"
+              >
+                ×
+              </motion.button>
+            )}
+            
             <div
-              className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
+              className="lightbox-container fixed inset-0 z-50 flex items-start xl:items-center justify-start xl:justify-center pointer-events-none overflow-y-auto xl:overflow-hidden pt-26 xl:pt-0"
             >
+              
               <div
-                className="w-full flex items-center justify-center pointer-events-auto"
+                className="w-full flex flex-col xl:items-center justify-start xl:justify-center pointer-events-auto min-h-[calc(100vh+100px)] xl:min-h-0 pb-20 xl:pb-0"
                 onClick={(e) => e.stopPropagation()}
               >
-                {currentIndex > 0 && (
-                  <motion.button
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{
-                      opacity: 0,
-                      transition: {
-                        type: "tween",
-                        duration: 0.25,
-                        ease: "easeIn",
-                      },
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handlePrevious();
-                    }}
-                    className="absolute left-8 top-1/2 -translate-y-1/2 text-white text-6xl font-bold hover:opacity-70 transition-opacity z-100 cursor-pointer py-8"
-                    aria-label="Previous"
-                  >
-                    ‹
-                  </motion.button>
-                )}
-
-                <div className="w-full flex">
+                <div className="w-full flex flex-col xl:flex-row">
                   <motion.div
                     initial={{
                       x: clickedImageRect.left + clickedImageRect.width / 2 - window.innerWidth / 2,
@@ -366,7 +446,7 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
                     animate={{
                       x: 0,
                       y: 0,
-                      width: "60%",
+                      width: window.innerWidth < 1280 ? "90%" : "60%",
                       height: "75vh",
                     }}
                     transition={{
@@ -387,15 +467,37 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
                         ease: "easeIn",
                       },
                     }}
-                    className="w-[60%] h-[75vh]"
+                    className="w-[90%] xl:w-[60%] h-[50vh] xl:h-[75vh] ml-0 xl:mx-0"
                   >
-                    <div className="relative w-full h-full rounded-tr-[8rem] rounded-br-[8rem] overflow-hidden">
+                    <div className="relative w-full h-full rounded-tr-[8rem] xl:rounded-br-[8rem] rounded-br-[8rem] xl:rounded-tr-[8rem] overflow-hidden">
                       <StrapiImage
                         src={selectedItem.image.url}
                         alt={selectedItem.image.alternativeText || selectedItem.title}
                         fill
                         className="object-cover"
                       />
+                      {currentIndex > 0 && (
+                        <motion.button
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{
+                            opacity: 0,
+                            transition: {
+                              type: "tween",
+                              duration: 0.25,
+                              ease: "easeIn",
+                            },
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePrevious();
+                          }}
+                          className="absolute left-4 xl:left-8 top-1/2 -translate-y-1/2 text-white text-6xl font-bold hover:opacity-70 transition-opacity z-100 cursor-pointer py-8"
+                          aria-label="Previous"
+                        >
+                          ‹
+                        </motion.button>
+                      )}
                       {currentIndex < gallery_items.length - 1 && (
                         <motion.button
                           initial={{ opacity: 0 }}
@@ -412,7 +514,7 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
                             e.stopPropagation();
                             handleNext();
                           }}
-                          className="absolute right-8 top-1/2 -translate-y-1/2 text-white text-6xl font-bold hover:opacity-70 transition-opacity z-100 cursor-pointer py-8"
+                          className="absolute right-4 xl:right-8 top-1/2 -translate-y-1/2 text-white text-6xl font-bold hover:opacity-70 transition-opacity z-100 cursor-pointer py-8"
                           aria-label="Next"
                         >
                           ›
@@ -449,12 +551,12 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
                         ease: "easeIn",
                       },
                     }}
-                    className="w-[35%] ml-auto"
+                    className="w-full xl:w-[35%] xl:ml-auto mt-4 xl:mt-0"
                     style={{ 
                       transformOrigin: "left center",
                     }}
                   >
-                    <div className="p-12 h-[75vh] flex flex-col justify-center">
+                    <div className="p-6 xl:p-12 h-auto xl:h-[75vh] flex flex-col xl:justify-center">
                       <h2 className="text-white text-center text-4xl font-bold mb-8">{selectedItem.title}</h2>
                       <div className="text-white md:text-lg text-center leading-relaxed mb-14 whitespace-pre-line">
                         {selectedItem.description}

@@ -22,18 +22,18 @@ export function InfoBlock({
   return (
     <section 
       id={blockId} 
-      className="w-full min-h-[90vh] bg-black flex items-center relative"
+      className="w-full min-h-[90vh] bg-black flex flex-col md:flex-row items-center relative"
     >
       <div 
-        className={`w-[45%] min-h-[90vh] flex items-center transition-opacity duration-1000 ease-in-out ${
-          isReversed ? 'ml-auto' : ''
+        className={`w-full xl:w-[45%] min-h-[90vh] flex items-center transition-opacity duration-1000 ease-in-out ${
+          isReversed ? 'xl:ml-auto' : ''
         }`}
         style={{ opacity }}
       >
-        <div className={`bg-white p-8 md:p-15 min-h-[60vh] flex items-center ${
+        <div className={`bg-white p-8 md:p-15 min-h-[60vh] flex items-center w-[90%] xl:w-auto ${
           isReversed 
-            ? 'rounded-tl-[8rem] rounded-bl-[8rem]' 
-            : 'rounded-tr-[8rem] rounded-br-[8rem]'
+            ? 'rounded-tl-[8rem] rounded-bl-[8rem] ml-auto mr-0 xl:ml-auto' 
+            : 'rounded-tr-[8rem] rounded-br-[8rem] ml-0'
         }`}>
           <div>
             <h2 className="text-black text-center text-2xl md:text-3xl font-bold mb-4">

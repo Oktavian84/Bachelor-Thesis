@@ -21,12 +21,24 @@
 
 html {
   scroll-behavior: smooth;
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
 }
 
 body {
   background: black;
   color: var(--foreground);
   font-family: var(--font-sans);
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+  position: relative;
+  overflow-x: hidden;
+  touch-action: pan-y;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 section {
@@ -39,6 +51,9 @@ main {
   border: none;
   outline: none;
   box-shadow: none;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 #image-track,
@@ -57,12 +72,11 @@ main {
 
 .gallery-image-container {
   position: relative;
-  width: 40vmin;
-  height: 65vmin;
   flex-shrink: 0;
   overflow: hidden;
   border-radius: 1rem;
 }
+
 
 .gallery-image {
   object-fit: cover;

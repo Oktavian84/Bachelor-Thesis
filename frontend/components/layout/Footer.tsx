@@ -18,7 +18,7 @@ export function Footer({ data }: FooterProps) {
 
   const { policies, copy } = data;
   return (
-    <footer className="bg-black px-8 py-6 z-60 relative">
+    <footer className="bg-black px-8 py-2 sm:py-6 z-60 relative max-[639px]:mt-auto">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <nav>
           <ul className="flex flex-row flex-wrap gap-6 justify-center md:justify-start">
