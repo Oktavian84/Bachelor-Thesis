@@ -13,7 +13,7 @@ export function ExhibitionBlock({
 }: Readonly<ExhibitionBlockProps>) {
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<"success" | "error" | "warning" | null>(null);
+  const [submitStatus, setSubmitStatus] = useState<"success" | "error" | null>(null);
   const [formData, setFormData] = useState({ name: "", email: "" });
   const [errors, setErrors] = useState<Partial<Record<keyof ExhibitionFormData, string>>>({});
   const [focusedField, setFocusedField] = useState<string | null>(null);
@@ -44,19 +44,14 @@ export function ExhibitionBlock({
         throw new Error(errorData.error || `Failed to submit booking: ${response.status}`);
       }
 
-      const result = await response.json();
+      await response.json();
       
-      if (result.emailSent === false) {
-        setSubmitStatus("warning");
-      } else {
-        setSubmitStatus("success");
-      }
-      
+      setSubmitStatus("success");
       setFormData({ name: "", email: "" });
       setErrors({});
+      setShowForm(false);
 
       setTimeout(() => {
-        setShowForm(false);
         setSubmitStatus(null);
       }, 3000);
     } catch (error) {
@@ -90,56 +85,73 @@ export function ExhibitionBlock({
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("sv-SE", {
+      year: "numeric",
       month: "long",
+      day: "numeric",
     });
   };
 
-  const formatTime = (timeString: string) => {
+  const formatTime = (timeString: string, endTimeString?: string) => {
     const [hours, minutes] = timeString.split(":");
-    const date = new Date();
-    date.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0);
-    return date.toLocaleTimeString("sv-SE");
+    const startTime = `${hours}.${minutes.padStart(2, '0')}`;
+    
+    if (endTimeString) {
+      const [endHours, endMinutes] = endTimeString.split(":");
+      const endTime = `${endHours}.${endMinutes.padStart(2, '0')}`;
+      return `${startTime} - ${endTime}`;
+    }
+    
+    return startTime;
   };
 
   return (
-    <section className="w-full bg-black flex items-center pt-30">
-      <div className="w-full flex">
-        <div className="w-[35%]">
-          <div className="bg-white rounded-tr-[8rem] rounded-br-[8rem] p-12 h-[75vh] flex flex-col justify-center">
-            <h2 className="text-black text-center text-4xl font-bold mb-8">{exhibition.title}</h2>
+    <section className="w-full bg-black flex items-center pt-28 xl:pt-35">
+      <div className="w-full flex flex-col xl:flex-row xl:items-center">
+        <div className="w-full xl:w-[45%] h-auto xl:h-[65vh] xl:px-16 xl:ml-10 flex items-center">
+          <div className="p-8 xl:p-12 w-full flex flex-col justify-center">
+            <h2 className="text-white text-center text-4xl font-bold mb-8 text-shadow-lg/30">{exhibition.title}</h2>
             
-            <div className="text-black text-base md:text-3xl text-center leading-relaxed mb-6 whitespace-pre-line">
+            {(exhibition.date || exhibition.time) && (
+              <div className="md:flex justify-evenly mb-8 text-center">
+                {exhibition.date && (
+                  <p className="text-white text-xl mb-2 md:mb-0 text-shadow-lg/30">
+                    <strong>Date:</strong> {formatDate(exhibition.date)}
+                  </p>
+                )}
+                {exhibition.time && (
+                  <p className="text-white text-xl text-shadow-lg/30">
+                    <strong>Time:</strong> {formatTime(exhibition.time, exhibition.endTime)}
+                  </p>
+                )}
+              </div>
+            )}
+
+            <div className="text-white text-base md:text-xl text-center leading-relaxed mb-6 whitespace-pre-line text-shadow-lg/30">
               <ReactMarkdown>{exhibition.description}</ReactMarkdown>
             </div>
 
-            <div className="space-y-3 mb-8 text-center">
-              {exhibition.date && (
-                <p className="text-black text-xl">
-                  <strong>Date:</strong> {formatDate(exhibition.date)}
-                </p>
-              )}
-              {exhibition.time && (
-                <p className="text-black text-xl">
-                  <strong>Time:</strong> {formatTime(exhibition.time)}
-                </p>
-              )}
-              {exhibition.location && (
-                <p className="text-black text-xl">
+            {exhibition.location && (
+              <div className="mb-8 text-center">
+                <p className="text-white text-xl text-shadow-lg/30">
                   <strong>Location:</strong> {exhibition.location}
                 </p>
-              )}
-            </div>
+              </div>
+            )}
 
             <button
               onClick={() => setShowForm(true)}
-              className="bg-black text-white px-8 py-2 rounded-lg text-xl font-bold hover:bg-gray-800 transition-colors self-center"
+              className={`bg-black text-white px-8 py-2 rounded-lg text-xl font-bold border border-white hover:bg-white hover:text-black hover:border-black hover:scale-110 shadow-sm shadow-white self-center ${
+                showForm 
+                  ? 'invisible pointer-events-none' 
+                  : 'visible transition-all duration-300 ease-in-out'
+              }`}
             >
               Book
             </button>
           </div>
         </div>
 
-        <div className="w-[60%] h-[75vh] ml-auto">
+        <div className="w-[95%] xl:w-[45%] h-[65vh] ml-auto xl:ml-auto mt-8 mb-12 xl:mt-0 pb-8 xl:pb-0">
           {!showForm && exhibition.image ? (
             <div className="relative w-full h-full rounded-tl-[8rem] rounded-bl-[8rem] overflow-hidden">
               <StrapiImage
@@ -148,62 +160,87 @@ export function ExhibitionBlock({
                 fill
                 className="object-cover"
               />
+              {submitStatus === "success" && (
+                <div className="absolute top-0 left-10 md:left-0 right-0 p-6 text-center">
+                  <p className="text-white text-2xl lg:text-3xl text-shadow-lg/30">
+                    Thank you! Your booking has been registered.
+                  </p>
+                </div>
+              )}
             </div>
           ) : (
-            <div className="bg-white rounded-tl-[8rem] rounded-bl-[8rem] p-12 h-full flex flex-col justify-center">
-              <form onSubmit={handleSubmit} noValidate className="space-y-6">
-                {submitStatus === "success" && (
-                  <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
-                    Thank you! Your booking has been registered.
+            <div className="relative rounded-tl-[8rem] rounded-bl-[8rem] p-12 h-full flex flex-col justify-center overflow-hidden">
+              {/* Background image with fade effect */}
+              {exhibition.image && (
+                <>
+                  <div className="absolute inset-0 z-0">
+                    <StrapiImage
+                      src={exhibition.image.url}
+                      alt={exhibition.image.alternativeText || exhibition.title}
+                      fill
+                      className="object-cover opacity-30"
+                    />
                   </div>
-                )}
-                {submitStatus === "warning" && (
-                  <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded-lg">
-                    Your booking has been registered, but we couldn&apos;t send a confirmation email. Please contact us directly.
-                  </div>
-                )}
+                  {/* Dark overlay for better readability */}
+                  <div className="absolute inset-0 bg-black/40 z-0"></div>
+                </>
+              )}
+              
+              {/* Form content */}
+              <form onSubmit={handleSubmit} noValidate className="space-y-6 relative z-10">
+                  {submitStatus === "success" && (
+                    <div className="px-4 py-3 rounded-lg text-xl lg:text-3xl">
+                      Thank you! Your booking has been registered.
+                    </div>
+                  )}
                 {submitStatus === "error" && (
                   <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
                     Something went wrong. Please try again.
                   </div>
                 )}
-                <div>
-                  <label htmlFor="name" className="block text-black text-lg mb-2">
-                    Name
-                  </label>
-                  <FormInput
-                    name="name"
-                    value={formData.name}
-                    error={errors.name}
-                    focusedField={focusedField}
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
-                    onChange={handleInputChange}
-                    disabled={isSubmitting}
-                    defaultPlaceholder="Enter your name"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="email" className="block text-black text-lg mb-2">
-                    Email
-                  </label>
-                  <FormInput
-                    name="email"
-                    value={formData.email}
-                    error={errors.email}
-                    focusedField={focusedField}
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
-                    onChange={handleInputChange}
-                    disabled={isSubmitting}
-                    defaultPlaceholder="Enter your email"
-                  />
-                </div>
-                <div className="flex gap-4">
+                <div className="max-w-fit mx-auto">
+                  <p className="text-white text-center text-2xl lg:text-3xl mb-10 md:mb-20 -mt-8 text-shadow-lg/30">
+                    Please fill in your information for the booking
+                  </p>
+                  <div>
+                    <label htmlFor="name" className="block text-white text-xl mb-2 text-shadow-lg/30">
+                      Name
+                    </label>
+                    <FormInput
+                      name="name"
+                      value={formData.name}
+                      error={errors.name}
+                      focusedField={focusedField}
+                      onFocus={handleFocus}
+                      onBlur={handleBlur}
+                      onChange={handleInputChange}
+                      disabled={isSubmitting}
+                      defaultPlaceholder="Enter your name"
+                      className="shadow-sm shadow-black"
+                    />
+                  </div>
+                  <div className="mt-6">
+                    <label htmlFor="email" className="block text-white text-xl mb-2 text-shadow-lg/30">
+                      Email
+                    </label>
+                    <FormInput
+                      name="email"
+                      value={formData.email}
+                      error={errors.email}
+                      focusedField={focusedField}
+                      onFocus={handleFocus}
+                      onBlur={handleBlur}
+                      onChange={handleInputChange}
+                      disabled={isSubmitting}
+                      defaultPlaceholder="Enter your email"
+                      className="shadow-sm shadow-black"
+                    />
+                  </div>
+                  <div className="flex gap-4 justify-end mt-6">
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="bg-black text-white px-8 py-4 rounded-lg text-xl font-bold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="bg-white text-black px-8 py-2 rounded-lg text-xl font-bold border border-black hover:bg-black hover:text-white hover:scale-110 transition-all duration-300 ease-in-out shadow-sm shadow-black disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSubmitting ? "Submitting..." : "Book"}
                   </button>
@@ -216,10 +253,11 @@ export function ExhibitionBlock({
                       setErrors({});
                     }}
                     disabled={isSubmitting}
-                    className="bg-gray-300 text-black px-8 py-4 rounded-lg text-xl font-bold hover:bg-gray-400 transition-colors disabled:opacity-50"
-                  >
-                    Cancel
-                  </button>
+                    className="bg-white text-black px-8 py-2 rounded-lg text-xl font-bold border border-black hover:bg-black hover:text-white hover:scale-110 transition-all duration-300 ease-in-out shadow-sm shadow-black disabled:opacity-50"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               </form>
             </div>

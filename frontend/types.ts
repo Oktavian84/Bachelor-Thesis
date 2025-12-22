@@ -82,6 +82,7 @@ export interface Exhibition {
   description: string;
   date: string;
   time: string;
+  endTime?: string;
   location?: string;
   image: ImageProps;
   slug: string;

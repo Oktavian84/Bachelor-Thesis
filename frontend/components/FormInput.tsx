@@ -21,11 +21,13 @@ interface BaseInputProps {
 
 interface FormInputProps extends BaseInputProps {
   isTextarea?: false;
+  className?: string;
   inputProps?: Omit<InputHTMLAttributes<HTMLInputElement>, 'name' | 'value' | 'onChange' | 'onFocus' | 'onBlur' | 'disabled' | 'placeholder' | 'title' | 'className' | 'style' | 'autoComplete' | 'data-checkout-input'>;
 }
 
 interface FormTextareaProps extends BaseInputProps {
   isTextarea: true;
+  className?: string;
   textareaProps?: Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'name' | 'value' | 'onChange' | 'onFocus' | 'onBlur' | 'disabled' | 'placeholder' | 'title' | 'className'>;
 }
 
@@ -43,6 +45,7 @@ export function FormInput(props: FormInputComponentProps) {
     disabled = false,
     defaultPlaceholder,
     variant = 'light',
+    className,
   } = props;
 
   const isFocused = focusedField === name;
@@ -64,7 +67,7 @@ export function FormInput(props: FormInputComponentProps) {
       : 'border-white/20 placeholder-white/50'
   } text-white`;
 
-  const inputClassName = isDark ? darkBaseClassName : lightBaseClassName;
+  const inputClassName = `${isDark ? darkBaseClassName : lightBaseClassName} ${className || ''}`.trim();
   const errorTextColor = isDark ? 'text-red-400' : 'text-red-500';
   const errorOverlayPadding = isDark ? 'px-4 py-2' : 'px-4 py-3';
 

@@ -479,6 +479,7 @@ export interface ApiExhibitionExhibition extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     date: Schema.Attribute.Date;
     description: Schema.Attribute.Text;
+    endTime: Schema.Attribute.Time;
     image: Schema.Attribute.Media<'images'>;
     isActive: Schema.Attribute.Boolean;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
