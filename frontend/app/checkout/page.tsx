@@ -139,8 +139,8 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="bg-black text-white px-8 flex-1 flex items-center justify-center min-h-0 mt-20">
-      <div className="w-full my-auto px-10">
+    <div className="bg-black text-white md:px-8 flex-1 flex items-center justify-center min-h-0 mt-20 xl:mt-10 mb-20 xl:mb-0">
+      <div className="w-full my-auto md:px-10 translate-y-12 xl:translate-y-16">
         {paymentSuccess ? (
           <div className="max-w-2xl mx-auto text-center">
             <div className="mb-4 p-6 bg-green-500/20 border border-green-500 rounded">
@@ -150,12 +150,12 @@ export default function CheckoutPage() {
             </div>
           </div>
         ) : (
-          <div className="grid md:grid-cols-[2fr_1fr] gap-16">
+          <div className="flex flex-col xl:flex-row justify-center items-center lg:items-start gap-22 xl:gap-52 px-8">
           
           {/* Cart Items */}
-          <div>
+          <div className="w-full xl:w-[60%]">
             <h2 className="text-2xl font-bold text-center mb-6">Cart Items</h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {items.map((item) => (
                 <div
                   key={item.documentId}
@@ -203,7 +203,7 @@ export default function CheckoutPage() {
           </div>
 
           {/* Shipping Form & Payment */}
-          <div>
+          <div className="w-full xl:w-[30%]">
             <h2 className="text-2xl font-bold mb-6 text-center">Shipping Information</h2>
             <form onSubmit={handleSubmit} noValidate className="space-y-4">
               <div>
@@ -312,56 +312,64 @@ export default function CheckoutPage() {
               </div>
 
               <div className="mt-6">
-                {!createdOrderId ? (
-                  <>
-                    <p className="text-white/70 mb-4">
-                      Fill in your shipping information and create an order to proceed with PayPal payment.*
-                    </p>
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full bg-white text-black px-8 py-4 rounded-lg text-xl font-bold hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isSubmitting ? "Creating Order..." : "Create Order"}
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    {paymentSuccess ? (
-                      <div className="mb-4 p-4 bg-green-500/20 border border-green-500 rounded">
+                <div className="h-[100px] mb-4">
+                  {!createdOrderId ? null : (
+                    paymentSuccess ? (
+                      <div className="p-4 bg-green-500/20 border border-green-500 rounded h-full flex flex-col justify-center">
                         <p className="text-green-400 font-semibold mb-1">Payment Successful!</p>
                         <p className="text-sm text-white/70">Order ID: {paymentSuccess}</p>
                         <p className="text-sm text-white/70 mt-2">Thank you for your purchase!</p>
                       </div>
                     ) : (
+                      <div className="p-4 bg-green-500/20 border border-green-500 rounded h-full flex flex-col justify-center">
+                        <p className="text-green-400 font-semibold mb-1">Order Created!</p>
+                        <p className="text-sm text-white/70">Order ID: {createdOrderId}</p>
+                        <p className="text-sm text-white/70 mt-2">Complete your payment with PayPal below:</p>
+                      </div>
+                    )
+                  )}
+                </div>
+                <div className="h-[200px]">
+                  {!createdOrderId ? (
+                    <>
+                      <p className="text-white/70 mb-4">
+                        Fill in your shipping information and create an order to proceed with PayPal payment.*
+                      </p>
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full bg-black text-white px-8 py-2 rounded-lg text-xl font-bold border border-white hover:bg-white hover:text-black hover:border-black hover:scale-105 transition-all duration-300 ease-in-out shadow-sm shadow-white disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                      >
+                        {isSubmitting ? "Creating Order..." : "Create Order"}
+                      </button>
+                    </>
+                  ) : (
+                  <>
+                    {!paymentSuccess && (
                       <>
-                        <div className="mb-4 p-4 bg-green-500/20 border border-green-500 rounded">
-                          <p className="text-green-400 font-semibold mb-1">Order Created!</p>
-                          <p className="text-sm text-white/70">Order ID: {createdOrderId}</p>
-                          <p className="text-sm text-white/70 mt-2">Complete your payment with PayPal below:</p>
-                        </div>
                         {paymentError && (
                           <div className="mb-4 p-4 bg-red-500/20 border border-red-500 rounded">
                             <p className="text-red-400 font-semibold">Payment Error</p>
                             <p className="text-sm text-white/70 mt-1">{paymentError}</p>
                           </div>
                         )}
-                        <PayPalButton
-                      orderId={createdOrderId}
-                      amount={totalPrice}
-                      currency="SEK"
-                      items={items.map((item) => ({
-                        title: item.title,
-                        price: item.price,
-                        quantity: 1,
-                      }))}
-                      shippingAddress={{
-                        address: formData.address,
-                        city: formData.city,
-                        postalCode: formData.postalCode,
-                        country: formData.country,
-                      }}
-                      onSuccess={async (orderId) => {
+                        <div className="hover:scale-105 transition-all duration-300 ease-in-out rounded-lg overflow-hidden">
+                          <PayPalButton
+                            orderId={createdOrderId}
+                            amount={totalPrice}
+                            currency="SEK"
+                            items={items.map((item) => ({
+                              title: item.title,
+                              price: item.price,
+                              quantity: 1,
+                            }))}
+                            shippingAddress={{
+                              address: formData.address,
+                              city: formData.city,
+                              postalCode: formData.postalCode,
+                              country: formData.country,
+                            }}
+                            onSuccess={async (orderId) => {
                         setPaymentSuccess(orderId);
                         setPaymentError(null);
                         
@@ -401,21 +409,27 @@ export default function CheckoutPage() {
                       onCancel={() => {
                         setPaymentError("Payment was canceled. You can try again.");
                       }}
-                        />
+                            />
+                        </div>
+                      </>
+                    )}
+                    <div className="min-h-[60px] mt-4">
+                      {!paymentSuccess && (
                         <button
                           type="button"
                           onClick={() => {
                             setCreatedOrderId(null);
                             setPaymentError(null);
                           }}
-                          className="w-full mt-4 bg-white/10 text-white px-8 py-2 rounded-lg text-sm font-semibold hover:bg-white/20 transition-colors"
+                          className="w-full bg-black text-white px-8 py-2 rounded-lg text-xl font-bold border border-white hover:bg-white hover:text-black hover:border-black hover:scale-105 transition-all duration-300 ease-in-out shadow-sm shadow-white"
                         >
                           Cancel & Edit Order
                         </button>
-                      </>
-                    )}
+                      )}
+                    </div>
                   </>
-                )}
+                  )}
+                </div>
               </div>
             </form>
           </div>
