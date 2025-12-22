@@ -200,7 +200,7 @@ export function ExhibitionBlock({
                 )}
                 <div className="max-w-fit mx-auto">
                   <p className="text-white text-center text-2xl lg:text-3xl mb-10 md:mb-20 -mt-8 text-shadow-lg/30">
-                    Please fill in your information for the booking
+                    Please fill in your information for the booking.
                   </p>
                   <div>
                     <label htmlFor="name" className="block text-white text-xl mb-2 text-shadow-lg/30">
