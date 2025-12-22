@@ -189,6 +189,15 @@ export default {
           },
         });
 
+        // Delete gallery items and update gallery pages
+        try {
+          const orderService = strapi.service('api::order.order');
+          await orderService.deleteGalleryItemsFromCompletedOrder(existingOrder[0].id);
+        } catch (error) {
+          strapi.log.error('Error deleting gallery items after order completion:', error);
+          // Don't fail the payment if cleanup fails
+        }
+
         ctx.body = {
           success: true,
           order: {
