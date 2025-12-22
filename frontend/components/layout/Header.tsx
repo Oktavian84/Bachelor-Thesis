@@ -31,7 +31,7 @@ export function Header({ data }: HeaderProps) {
   const { logo, navigation } = data;
   const cartItemCount = getItemCount();
   return (
-    <header className={`absolute top-0 left-0 right-0 z-60 px-8 py-4 ${isMenuOpen ? 'bg-black rounded-b-[5rem] md:rounded-b-[10rem] overflow-hidden' : 'bg-transparent'}`}>
+    <header className={`absolute top-0 left-0 right-0 z-60 px-8 py-4 ${isMenuOpen ? 'bg-black rounded-b-[5rem] md:rounded-b-[10rem] overflow-hidden border-b-2 border-white' : 'bg-transparent'}`}>
       <div className="flex items-center justify-between">
         <Link href="/" className="flex items-center">
           <div className="w-10 h-10 rounded-lg overflow-hidden">

@@ -11,9 +11,9 @@ export function FaqBlock({
   
   return (
     <div
-      className={`w-[30%] min-h-[65vh] bg-white p-16 mt-3 ${
+      className={`w-full xl:w-[30%] min-h-[65vh] bg-white p-13 xl:p-16 mt-10 ${
         reversed
-          ? "rounded-tl-[8rem] rounded-tr-[8rem] rounded-bl-2xl rounded-br-2xl mt-25"
+          ? "rounded-tl-[8rem] rounded-tr-[8rem] rounded-bl-2xl rounded-br-2xl xl:mt-25"
           : "rounded-br-[8rem] rounded-bl-[8rem] rounded-tl-2xl rounded-tr-2xl"
       }`}
     >

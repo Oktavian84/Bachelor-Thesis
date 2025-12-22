@@ -61,7 +61,7 @@ function blockRenderer(block: Block, index: number, allBlocks: Block[]) {
       if (index > 0 && allBlocks[index - 1].__component === "blocks.faq-block") return null;
       const faqBlocks = allBlocks.slice(index).filter(b => b.__component === "blocks.faq-block") as FaqBlockProps[];
       return (
-        <div key={index} className="w-full bg-black py-8 mt-15 flex items-start justify-evenly px-8 min-h-[75vh] gap-20">
+        <div key={index} className="w-full bg-black py-8 mt-15 flex flex-col xl:flex-row items-start justify-evenly px-8 min-h-[75vh] gap-20">
           {faqBlocks.map((b, i) => <FaqBlock key={i} {...b} />)}
         </div>
       );

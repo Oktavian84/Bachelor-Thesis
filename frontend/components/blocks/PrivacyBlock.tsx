@@ -8,10 +8,10 @@ export function PrivacyBlock({
   reversed,
 }: Readonly<PrivacyBlockProps>) {
   return (
-    <div className={`min-h-[35vh] w-full flex items-center bg-black mt-20 px-8  ${reversed ? 'justify-end' : 'justify-start'}`}>
-      <div className={` min-h-[35vh] bg-white p-20 text-center ${
+    <div className={`min-h-[35vh] xl:w-full flex items-center bg-black mt-30 xl:mt-20 px-4 xl:px-8  ${reversed ? 'justify-end' : 'justify-start'}`}>
+      <div className={` min-h-[35vh] bg-white p-17 xl:p-20 text-center ${
         reversed
-          ? 'rounded-tl-[8rem] rounded-bl-4xl rounded-tr-[8rem] rounded-br-4xl'
+          ? 'rounded-tl-[8rem] rounded-bl-4xl rounded-tr-[8rem] rounded-br-4xl mb-20 xl:mb-0'
           : 'rounded-br-[8rem] rounded-bl-[8rem] rounded-tl-4xl rounded-tr-4xl'
       }`}>
         {headline && (
