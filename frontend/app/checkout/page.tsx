@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useCart } from "@/contexts/CartContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { StrapiImage } from "@/components/StrapiImage";
 import { createOrder } from "@/utils/orders";
 import PayPalButton from "@/components/PayPalButton";
@@ -12,6 +13,8 @@ import { FormInput } from "@/components/FormInput";
 
 export default function CheckoutPage() {
   const { items, removeItem, getTotalPrice, clearCart } = useCart();
+  const { theme } = useTheme();
+  const isLight = theme === "light";
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createdOrderId, setCreatedOrderId] = useState<string | null>(null);
   const [paymentError, setPaymentError] = useState<string | null>(null);
@@ -51,9 +54,9 @@ export default function CheckoutPage() {
 
   if (items.length === 0 && !paymentSuccess) {
     return (
-      <div className="bg-black text-white flex-1 flex items-center justify-center">
+      <div className={`flex-1 flex items-center justify-center ${isLight ? 'bg-white' : 'bg-black'}`}>
         <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4">Your cart is empty</h1>
+          <h1 className={`text-4xl font-caudex font-bold mb-4 ${isLight ? 'text-black' : 'text-white'}`}>Your cart is empty</h1>
         </div>
       </div>
     );
@@ -139,14 +142,14 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="bg-black text-white md:px-8 flex-1 flex items-center justify-center min-h-0 mt-20 xl:mt-10 mb-20 xl:mb-0">
+    <div className={`font-caudex md:px-8 flex-1 flex items-center justify-center min-h-0 mt-20 xl:mt-10 mb-20 xl:mb-0 ${isLight ? 'bg-white text-black' : 'bg-black text-white'}`}>
       <div className="w-full my-auto md:px-10 translate-y-12 xl:translate-y-16">
         {paymentSuccess ? (
           <div className="max-w-2xl mx-auto text-center">
             <div className="mb-4 p-6 bg-green-500/20 border border-green-500 rounded">
-              <p className="text-green-400 font-semibold text-2xl mb-2">Payment Successful!</p>
-              <p className="text-lg text-white/70">Order ID: {paymentSuccess}</p>
-              <p className="text-lg text-white/70 mt-4">Thank you for your purchase!</p>
+              <p className="text-green-400 font-caudex font-semibold text-2xl mb-2">Payment Successful!</p>
+              <p className={`text-lg font-caudex ${isLight ? 'text-black/70' : 'text-white/70'}`}>Order ID: {paymentSuccess}</p>
+              <p className={`text-lg font-caudex mt-4 ${isLight ? 'text-black/70' : 'text-white/70'}`}>Thank you for your purchase!</p>
             </div>
           </div>
         ) : (
@@ -154,12 +157,14 @@ export default function CheckoutPage() {
           
           {/* Cart Items */}
           <div className="w-full xl:w-[60%]">
-            <h2 className="text-2xl font-bold text-center mb-6">Cart Items</h2>
+            <h2 className={`text-2xl font-caudex font-bold text-center mb-6 ${isLight ? 'text-black' : 'text-white'}`}>Cart Items</h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {items.map((item) => (
                 <div
                   key={item.documentId}
-                  className="flex gap-4 p-4 bg-white/10 rounded-lg relative"
+                  className={`flex gap-4 p-4 rounded-lg relative ${
+                    isLight ? 'bg-black/10' : 'bg-white/10'
+                  }`}
                 >
                   <div className="w-24 h-24 shrink-0 rounded overflow-hidden">
                     <StrapiImage
@@ -171,12 +176,12 @@ export default function CheckoutPage() {
                     />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
-                    <p className="text-lg font-bold">{item.price} SEK</p>
+                    <h3 className={`text-xl font-caudex font-semibold mb-2 ${isLight ? 'text-black' : 'text-white'}`}>{item.title}</h3>
+                    <p className={`text-lg font-caudex font-bold ${isLight ? 'text-black' : 'text-white'}`}>{item.price} SEK</p>
                   </div>
                   <button
                     onClick={() => removeItem(item.documentId)}
-                    className="absolute top-2 right-2 text-white"
+                    className={`absolute top-2 right-2 font-caudex ${isLight ? 'text-black' : 'text-white'}`}
                     aria-label="Remove item"
                   >
                     <svg
@@ -194,8 +199,8 @@ export default function CheckoutPage() {
                 </div>
               ))}
             </div>
-            <div className="mt-6 pt-6 border-t border-white/20">
-              <div className="flex justify-between items-center text-2xl font-bold">
+            <div className={`mt-6 pt-6 border-t ${isLight ? 'border-black/20' : 'border-white/20'}`}>
+              <div className={`flex justify-between items-center text-2xl font-caudex font-bold ${isLight ? 'text-black' : 'text-white'}`}>
                 <span>Total:</span>
                 <span>{totalPrice} SEK</span>
               </div>
@@ -204,14 +209,14 @@ export default function CheckoutPage() {
 
           {/* Shipping Form & Payment */}
           <div className="w-full xl:w-[30%]">
-            <h2 className="text-2xl font-bold mb-6 text-center">Shipping Information</h2>
+            <h2 className={`text-2xl font-caudex font-bold mb-6 text-center ${isLight ? 'text-black' : 'text-white'}`}>Shipping Information</h2>
             <form onSubmit={handleSubmit} noValidate className="space-y-4">
               <div>
-                <label htmlFor="name" className="block mb-2">
-                  Full Name
+                <label htmlFor="name" className={`block font-caudex mb-2 ${isLight ? 'text-black' : 'text-white'}`}>
+                  Full Name *
                 </label>
                 <FormInput
-                  variant="dark"
+                  variant={isLight ? "light" : "dark"}
                   name="name"
                   value={formData.name}
                   error={errors.name}
@@ -224,11 +229,11 @@ export default function CheckoutPage() {
                 />
               </div>
               <div>
-                <label htmlFor="email" className="block mb-2">
-                  Email
+                <label htmlFor="email" className={`block font-caudex mb-2 ${isLight ? 'text-black' : 'text-white'}`}>
+                  Email *
                 </label>
                 <FormInput
-                  variant="dark"
+                  variant={isLight ? "light" : "dark"}
                   name="email"
                   value={formData.email}
                   error={errors.email}
@@ -241,11 +246,11 @@ export default function CheckoutPage() {
                 />
               </div>
               <div>
-                <label htmlFor="address" className="block mb-2">
-                  Address
+                <label htmlFor="address" className={`block font-caudex mb-2 ${isLight ? 'text-black' : 'text-white'}`}>
+                  Address *
                 </label>
                 <FormInput
-                  variant="dark"
+                  variant={isLight ? "light" : "dark"}
                   name="address"
                   value={formData.address}
                   error={errors.address}
@@ -259,11 +264,11 @@ export default function CheckoutPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="city" className="block mb-2">
-                    City
+                  <label htmlFor="city" className={`block font-caudex mb-2 ${isLight ? 'text-black' : 'text-white'}`}>
+                    City *
                   </label>
                   <FormInput
-                  variant="dark"
+                  variant={isLight ? "light" : "dark"}
                     name="city"
                     value={formData.city}
                     error={errors.city}
@@ -276,11 +281,11 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="postalCode" className="block mb-2">
-                    Postal Code
+                  <label htmlFor="postalCode" className={`block font-caudex mb-2 ${isLight ? 'text-black' : 'text-white'}`}>
+                    Postal Code *
                   </label>
                   <FormInput
-                  variant="dark"
+                  variant={isLight ? "light" : "dark"}
                     name="postalCode"
                     value={formData.postalCode}
                     error={errors.postalCode}
@@ -294,11 +299,11 @@ export default function CheckoutPage() {
                 </div>
               </div>
               <div>
-                <label htmlFor="country" className="block mb-2">
-                  Country
+                <label htmlFor="country" className={`block font-caudex mb-2 ${isLight ? 'text-black' : 'text-white'}`}>
+                  Country *
                 </label>
                 <FormInput
-                  variant="dark"
+                  variant={isLight ? "light" : "dark"}
                   name="country"
                   value={formData.country}
                   error={errors.country}
@@ -312,33 +317,27 @@ export default function CheckoutPage() {
               </div>
 
               <div className="mt-6">
-                <div className="h-[100px] mb-4">
-                  {!createdOrderId ? null : (
-                    paymentSuccess ? (
-                      <div className="p-4 bg-green-500/20 border border-green-500 rounded h-full flex flex-col justify-center">
-                        <p className="text-green-400 font-semibold mb-1">Payment Successful!</p>
-                        <p className="text-sm text-white/70">Order ID: {paymentSuccess}</p>
-                        <p className="text-sm text-white/70 mt-2">Thank you for your purchase!</p>
-                      </div>
-                    ) : (
-                      <div className="p-4 bg-green-500/20 border border-green-500 rounded h-full flex flex-col justify-center">
-                        <p className="text-green-400 font-semibold mb-1">Order Created!</p>
-                        <p className="text-sm text-white/70">Order ID: {createdOrderId}</p>
-                        <p className="text-sm text-white/70 mt-2">Complete your payment with PayPal below:</p>
-                      </div>
-                    )
-                  )}
-                </div>
+                {paymentSuccess && (
+                  <div className="h-[100px] mb-4 p-4 bg-green-500/20 border border-green-500 rounded flex flex-col justify-center">
+                    <p className="text-green-400 font-caudex font-semibold mb-1">Payment Successful!</p>
+                    <p className={`text-sm font-caudex ${isLight ? 'text-black/70' : 'text-white/70'}`}>Order ID: {paymentSuccess}</p>
+                    <p className={`text-sm font-caudex mt-2 ${isLight ? 'text-black/70' : 'text-white/70'}`}>Thank you for your purchase!</p>
+                  </div>
+                )}
                 <div className="h-[200px]">
                   {!createdOrderId ? (
                     <>
-                      <p className="text-white/70 mb-4">
-                        Fill in your shipping information and create an order to proceed with PayPal payment.*
+                      <p className={`font-caudex mb-4 ${isLight ? 'text-black/70' : 'text-white/70'}`}>
+                        Fill in your shipping information to proceed with PayPal payment.*
                       </p>
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full bg-black text-white px-8 py-2 rounded-lg text-xl font-bold border border-white hover:bg-white hover:text-black hover:border-black hover:scale-105 transition-all duration-300 ease-in-out shadow-sm shadow-white disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                        className={`w-full font-caudex px-8 py-2 rounded-lg text-xl font-bold border hover:scale-105 transition-all duration-300 ease-in-out shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${
+                          isLight
+                            ? 'bg-black text-white border-black hover:bg-white hover:text-black hover:border-white shadow-black'
+                            : 'bg-black text-white border-white hover:bg-white hover:text-black hover:border-black shadow-white'
+                        }`}
                       >
                         {isSubmitting ? "Creating Order..." : "Create Order"}
                       </button>
@@ -349,8 +348,8 @@ export default function CheckoutPage() {
                       <>
                         {paymentError && (
                           <div className="mb-4 p-4 bg-red-500/20 border border-red-500 rounded">
-                            <p className="text-red-400 font-semibold">Payment Error</p>
-                            <p className="text-sm text-white/70 mt-1">{paymentError}</p>
+                            <p className="text-red-400 font-caudex font-semibold">Payment Error</p>
+                            <p className={`text-sm font-caudex mt-1 ${isLight ? 'text-black/70' : 'text-white/70'}`}>{paymentError}</p>
                           </div>
                         )}
                         <div className="hover:scale-105 transition-all duration-300 ease-in-out rounded-lg overflow-hidden">
@@ -421,9 +420,13 @@ export default function CheckoutPage() {
                             setCreatedOrderId(null);
                             setPaymentError(null);
                           }}
-                          className="w-full bg-black text-white px-8 py-2 rounded-lg text-xl font-bold border border-white hover:bg-white hover:text-black hover:border-black hover:scale-105 transition-all duration-300 ease-in-out shadow-sm shadow-white"
+                          className={`w-full font-caudex px-8 py-2 rounded-lg text-xl font-bold border hover:scale-105 transition-all duration-300 ease-in-out shadow-sm ${
+                            isLight
+                              ? 'bg-black text-white border-black hover:bg-white hover:text-black hover:border-white shadow-black'
+                              : 'bg-black text-white border-white hover:bg-white hover:text-black hover:border-black shadow-white'
+                          }`}
                         >
-                          Cancel & Edit Order
+                          Cancel
                         </button>
                       )}
                     </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import type { Block, FaqBlockProps, GalleryBlockProps, InfoBlockProps } from "@/types";
+import { useTheme } from "@/contexts/ThemeContext";
 
 import { HeroSection } from "@/components/blocks/HeroSection";
 import { InfoBlock } from "@/components/blocks/InfoBlock";
@@ -13,7 +14,7 @@ import { GalleryBlock } from "@/components/blocks/GalleryBlock";
 import { SculptureTransition } from "@/components/SculptureTransition";
 import { ScrollSnapHandler } from "@/components/ScrollSnapHandler";
 
-function blockRenderer(block: Block, index: number, allBlocks: Block[]) {
+function blockRenderer(block: Block, index: number, allBlocks: Block[], isLight: boolean) {
   switch (block.__component) {
     case "blocks.hero-section":
       return <HeroSection {...block} key={index} />;
@@ -23,7 +24,6 @@ function blockRenderer(block: Block, index: number, allBlocks: Block[]) {
       const isFirstInfoBlock = index === 0 || allBlocks[index - 1]?.__component !== "blocks.info-block";
       const isSecondInfoBlock = nextBlock?.__component === "blocks.info-block" && isFirstInfoBlock;
       
-      // Count InfoBlocks to identify block 2
       let infoBlockCount = 0;
       for (let i = 0; i <= index; i++) {
         if (allBlocks[i]?.__component === "blocks.info-block") {
@@ -61,7 +61,7 @@ function blockRenderer(block: Block, index: number, allBlocks: Block[]) {
       if (index > 0 && allBlocks[index - 1].__component === "blocks.faq-block") return null;
       const faqBlocks = allBlocks.slice(index).filter(b => b.__component === "blocks.faq-block") as FaqBlockProps[];
       return (
-        <div key={index} className="w-full bg-black py-8 mt-15 flex flex-col xl:flex-row items-start justify-evenly px-8 min-h-[75vh] gap-20">
+        <div key={index} className={`w-full py-8 mt-15 flex flex-col xl:flex-row items-start justify-evenly px-8 min-h-[75vh] gap-20 ${isLight ? 'bg-white' : 'bg-black'}`}>
           {faqBlocks.map((b, i) => <FaqBlock key={i} {...b} />)}
         </div>
       );
@@ -86,5 +86,8 @@ function blockRenderer(block: Block, index: number, allBlocks: Block[]) {
 }
 
 export function BlockRenderer({ blocks }: { blocks: Block[] }) {
-  return blocks.map((block, index) => blockRenderer(block, index, blocks));
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+  
+  return blocks.map((block, index) => blockRenderer(block, index, blocks, isLight));
 }

@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { StrapiImage } from "../StrapiImage";
 import { useCart } from "@/contexts/CartContext";
+import { ThemeToggle } from "../ThemeToggle";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface HeaderProps {
   data: {
@@ -17,6 +19,12 @@ export function Header({ data }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
   const { getItemCount } = useCart();
+  const { theme } = useTheme();
+  
+  const isHomePage = pathname === "/";
+  const isLight = theme === "light";
+  const shouldUseLightHeader = !isHomePage && isLight;
+  const shouldInvertToggle = !isHomePage; // Invertera toggle på alla sidor utom homepage
 
   useEffect(() => {
     if (isMenuOpen) {
@@ -30,8 +38,15 @@ export function Header({ data }: HeaderProps) {
 
   const { logo, navigation } = data;
   const cartItemCount = getItemCount();
+  
+  const headerBgClass = isMenuOpen 
+    ? 'bg-black rounded-b-[5rem] md:rounded-b-[10rem] overflow-hidden border-b-2 border-white'
+    : shouldUseLightHeader 
+      ? 'bg-white' 
+      : 'bg-transparent';
+  
   return (
-    <header className={`absolute top-0 left-0 right-0 z-60 px-8 pt-6 pb-4 ${isMenuOpen ? 'bg-black rounded-b-[5rem] md:rounded-b-[10rem] overflow-hidden border-b-2 border-white' : 'bg-transparent'}`}>
+    <header className={`absolute top-0 left-0 right-0 z-60 px-8 pt-6 pb-4 ${headerBgClass}`}>
       <div className="flex items-center justify-between">
         <Link href="/" className="flex items-center">
           <div className="w-10 h-10 rounded-lg overflow-hidden">
@@ -49,16 +64,20 @@ export function Header({ data }: HeaderProps) {
           <ul className="flex items-center gap-8">
             {navigation.map((item) => {
               const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+              const linkClass = shouldUseLightHeader
+                ? isActive
+                  ? "bg-black text-white"
+                  : "text-black hover:bg-black/10 hover:text-black"
+                : isActive
+                  ? "bg-white text-black"
+                  : "text-white hover:bg-white/40 hover:text-white";
+              
               return (
                 <li key={item.id} className="relative">
                   <Link
                     href={item.href}
                     target={item.isExternal ? "_blank" : "_self"}
-                    className={`font-lugrasimo text-xl transition-all duration-300 relative group pb-1 px-3 py-1 rounded-tr-[8rem] rounded-tl-[8rem] rounded-br-[8rem] rounded-bl-[8rem] ${
-                      isActive
-                        ? "bg-white text-black"
-                        : "text-white hover:bg-white/40 hover:text-white"
-                    }`}
+                    className={`font-lugrasimo text-xl relative group pb-1 px-3 py-1 rounded-tr-[8rem] rounded-tl-[8rem] rounded-br-[8rem] rounded-bl-[8rem] ${linkClass}`}
                   >
                     {item.text}
                   </Link>
@@ -66,9 +85,12 @@ export function Header({ data }: HeaderProps) {
               );
             })}
             <li>
+              <ThemeToggle inverted={shouldInvertToggle} />
+            </li>
+            <li>
               <Link
                 href="/checkout"
-                className="relative text-white hover:opacity-80 transition-opacity"
+                className={`relative hover:opacity-80 ${shouldUseLightHeader ? 'text-black' : 'text-white'}`}
                 aria-label="Shopping cart"
               >
                 <svg
@@ -83,7 +105,9 @@ export function Header({ data }: HeaderProps) {
                   <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 {cartItemCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-white text-black rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                  <span className={`absolute -top-2 -right-2 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold ${
+                    shouldUseLightHeader ? 'bg-black text-white' : 'bg-white text-black'
+                  }`}>
                     {cartItemCount}
                   </span>
                 )}
@@ -95,7 +119,7 @@ export function Header({ data }: HeaderProps) {
         <div className="md:hidden flex items-center gap-4">
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="text-white focus:outline-none"
+            className={`focus:outline-none ${shouldUseLightHeader ? 'text-black' : 'text-white'}`}
             aria-label="Toggle menu"
           >
             <svg
@@ -116,7 +140,7 @@ export function Header({ data }: HeaderProps) {
           </button>
           <Link
             href="/checkout"
-            className="relative text-white hover:opacity-80 transition-opacity"
+            className={`relative hover:opacity-80 ${shouldUseLightHeader ? 'text-black' : 'text-white'}`}
             aria-label="Shopping cart"
           >
             <svg
@@ -131,11 +155,14 @@ export function Header({ data }: HeaderProps) {
               <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
             {cartItemCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-white text-black rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+              <span className={`absolute -top-2 -right-2 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold ${
+                shouldUseLightHeader ? 'bg-black text-white' : 'bg-white text-black'
+              }`}>
                 {cartItemCount}
               </span>
             )}
           </Link>
+          <ThemeToggle inverted={shouldInvertToggle} />
         </div>
       </div>
 
@@ -144,22 +171,28 @@ export function Header({ data }: HeaderProps) {
           <ul className="flex flex-col gap-6 items-center">
             {navigation.map((item) => {
               const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+              const mobileLinkClass = shouldUseLightHeader
+                ? isActive
+                  ? "bg-black text-white"
+                  : "text-black hover:opacity-80"
+                : isActive
+                  ? "bg-white text-black"
+                  : "text-white hover:opacity-80";
+              
               return (
                 <li key={item.id} className="relative">
                   <Link
                     href={item.href}
                     target={item.isExternal ? "_blank" : "_self"}
                     onClick={() => setIsMenuOpen(false)}
-                    className={`font-lugrasimo text-xl transition-all duration-300 relative group pb-1 px-3 py-1 rounded ${
-                      isActive
-                        ? "bg-white text-black"
-                        : "text-white hover:opacity-80"
-                    }`}
+                    className={`font-lugrasimo text-xl relative group pb-1 px-3 py-1 rounded ${mobileLinkClass}`}
                   >
                     {item.text}
                     {!isActive && (
                       <span
-                        className="absolute bottom-0 left-0 h-0.5 bg-white transition-all duration-300 w-0 group-hover:w-full"
+                        className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 w-0 group-hover:w-full ${
+                          shouldUseLightHeader ? 'bg-black' : 'bg-white'
+                        }`}
                       />
                     )}
                   </Link>
