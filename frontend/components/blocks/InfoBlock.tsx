@@ -36,10 +36,10 @@ export function InfoBlock({
             : 'rounded-tr-[8rem] rounded-br-[8rem] ml-0'
         }`}>
           <div>
-            <h2 className="text-black text-center text-2xl md:text-3xl font-bold mb-4">
+            <h2 className="font-lugrasimo text-black text-center text-2xl md:text-3xl font-bold mb-4">
               {headline}
             </h2>
-            <div className="text-black text-base md:text-lg leading-relaxed">
+            <div className="font-caudex text-black text-base md:text-lg leading-relaxed">
               <ReactMarkdown>{content}</ReactMarkdown>
             </div>
           </div>

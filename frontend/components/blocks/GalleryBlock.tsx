@@ -557,30 +557,39 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
                     }}
                   >
                     <div className="p-6 xl:p-12 h-auto xl:h-[75vh] flex flex-col xl:justify-center">
-                      <h2 className="text-white text-center text-4xl font-bold mb-8">{selectedItem.title}</h2>
-                      <div className="text-white md:text-lg text-center leading-relaxed mb-14 whitespace-pre-line">
+                      <h2 className="font-dm-serif-text text-white text-center text-4xl font-bold mb-8">{selectedItem.title}</h2>
+                      <div className="font-dm-serif-text text-white md:text-lg text-center leading-relaxed mb-14 whitespace-pre-line">
                         {selectedItem.description}
                       </div>
-                      <div className="flex items-center justify-between pt-4 border-t border-black/20 mb-12">
-                        <span className="text-3xl md:text-2xl font-bold text-white">{selectedItem.price} SEK</span>
-                        <button
-                          onClick={() => {
-                            if (selectedItem) {
-                              addItem({
-                                id: selectedItem.id,
-                                documentId: selectedItem.documentId,
-                                title: selectedItem.title,
-                                image: selectedItem.image,
-                                price: selectedItem.price,
-                                slug: selectedItem.slug,
-                              });
-                              setIsLightboxOpen(false);
-                            }
-                          }}
-                          className="bg-white text-black px-8 py-2 rounded-lg text-xl font-bold hover:bg-gray-800 transition-colors"
-                        >
-                          Buy
-                        </button>
+                      <div className="pt-4 border-t border-black/20 mb-12">
+                        <div className="flex flex-wrap items-center justify-center gap-12 xl:flex-col xl:gap-6">
+                          {selectedItem.Dimensions && (
+                            <div className="text-white text-center">
+                              <p className="font-dm-serif-text text-xl md:text-2xl font-bold">{selectedItem.Dimensions}</p>
+                            </div>
+                          )}
+                          <div className="text-white text-center">
+                            <p className="font-dm-serif-text text-xl md:text-2xl font-bold">Price: {selectedItem.price} SEK</p>
+                          </div>
+                          <button
+                            onClick={() => {
+                              if (selectedItem) {
+                                addItem({
+                                  id: selectedItem.id,
+                                  documentId: selectedItem.documentId,
+                                  title: selectedItem.title,
+                                  image: selectedItem.image,
+                                  price: selectedItem.price,
+                                  slug: selectedItem.slug,
+                                });
+                                setIsLightboxOpen(false);
+                              }
+                            }}
+                            className="font-dm-serif-text bg-black text-white px-12 py-2 rounded-lg text-2xl font-bold border border-white hover:bg-white hover:text-black hover:border-black hover:scale-110 shadow-sm shadow-white transition-all duration-300 ease-in-out"
+                          >
+                            Buy
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </motion.div>

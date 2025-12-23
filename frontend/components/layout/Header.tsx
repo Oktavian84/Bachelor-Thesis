@@ -31,7 +31,7 @@ export function Header({ data }: HeaderProps) {
   const { logo, navigation } = data;
   const cartItemCount = getItemCount();
   return (
-    <header className={`absolute top-0 left-0 right-0 z-60 px-8 py-4 ${isMenuOpen ? 'bg-black rounded-b-[5rem] md:rounded-b-[10rem] overflow-hidden border-b-2 border-white' : 'bg-transparent'}`}>
+    <header className={`absolute top-0 left-0 right-0 z-60 px-8 pt-6 pb-4 ${isMenuOpen ? 'bg-black rounded-b-[5rem] md:rounded-b-[10rem] overflow-hidden border-b-2 border-white' : 'bg-transparent'}`}>
       <div className="flex items-center justify-between">
         <Link href="/" className="flex items-center">
           <div className="w-10 h-10 rounded-lg overflow-hidden">
@@ -54,7 +54,7 @@ export function Header({ data }: HeaderProps) {
                   <Link
                     href={item.href}
                     target={item.isExternal ? "_blank" : "_self"}
-                    className={`text-xl transition-all duration-300 relative group pb-1 px-3 py-1 rounded-tr-[8rem] rounded-tl-[8rem] rounded-br-[8rem] rounded-bl-[8rem] ${
+                    className={`font-lugrasimo text-xl transition-all duration-300 relative group pb-1 px-3 py-1 rounded-tr-[8rem] rounded-tl-[8rem] rounded-br-[8rem] rounded-bl-[8rem] ${
                       isActive
                         ? "bg-white text-black"
                         : "text-white hover:bg-white/40 hover:text-white"
@@ -150,7 +150,7 @@ export function Header({ data }: HeaderProps) {
                     href={item.href}
                     target={item.isExternal ? "_blank" : "_self"}
                     onClick={() => setIsMenuOpen(false)}
-                    className={`text-xl transition-all duration-300 relative group pb-1 px-3 py-1 rounded ${
+                    className={`font-lugrasimo text-xl transition-all duration-300 relative group pb-1 px-3 py-1 rounded ${
                       isActive
                         ? "bg-white text-black"
                         : "text-white hover:opacity-80"

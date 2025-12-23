@@ -30,6 +30,9 @@
     "slug": {
       "type": "uid",
       "targetField": "title"
+    },
+    "Dimensions": {
+      "type": "string"
     }
   }
 }

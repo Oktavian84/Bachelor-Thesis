@@ -22,17 +22,17 @@ export function HeroSection({
       {/* Content Overlay */}
       <div className="relative z-10 min-h-[75vh] flex items-center justify-center py-16 md:py-32">
         <div className="container mx-auto px-8 w-full">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-30 items-center">
             {/* Left side - Title */}
             <div className="flex items-center justify-center">
-              <h1 className="text-white text-5xl md:text-7xl lg:text-9xl font-bold text-shadow-lg/30 text-center md:text-left">
+              <h1 className="font-caudex text-white text-5xl md:text-7xl lg:text-9xl font-bold text-shadow-lg/30 text-center md:text-left">
                 {heading}
               </h1>
             </div>
 
             {/* Right side - Description */}
             <div className="flex items-center justify-center">
-              <p className="text-white text-xl md:text-2xl lg:text-4xl leading-relaxed whitespace-pre-line max-w-md text-center text-shadow-lg/30">
+              <p className="font-dm-serif-text text-white text-xl md:text-2xl lg:text-4xl leading-relaxed whitespace-pre-line max-w-lg text-center text-shadow-lg/30">
                 {description}
               </p>
             </div>

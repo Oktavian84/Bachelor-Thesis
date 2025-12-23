@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Lugrasimo, Caudex, DM_Serif_Text } from "next/font/google";
 import "./globals.css";
 import { getGlobalSettings } from "@/data/loaders";
 import { Header } from "@/components/layout/Header";
@@ -7,14 +7,22 @@ import { Footer } from "@/components/layout/Footer";
 import { CartProvider } from "@/contexts/CartContext";
 import { ScrollSnapProvider } from "@/contexts/ScrollSnapContext";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const lugrasimo = Lugrasimo({
+  variable: "--font-lugrasimo",
   subsets: ["latin"],
+  weight: "400",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const caudex = Caudex({
+  variable: "--font-caudex",
   subsets: ["latin"],
+  weight: ["400", "700"],
+});
+
+const dmSerifText = DM_Serif_Text({
+  variable: "--font-dm-serif-text",
+  subsets: ["latin"],
+  weight: "400",
 });
 
 export const metadata: Metadata = {
@@ -34,7 +42,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col`}
+        className={`${lugrasimo.variable} ${caudex.variable} ${dmSerifText.variable} antialiased flex flex-col`}
       >
               <CartProvider>
                 <ScrollSnapProvider>
