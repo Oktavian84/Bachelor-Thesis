@@ -55,13 +55,13 @@ export function FormInput(props: FormInputComponentProps) {
 
   const isDark = variant === 'dark';
 
-  const lightBaseClassName = `w-full px-4 py-3 border rounded-lg disabled:opacity-50 focus:outline-none ${
+  const lightBaseClassName = `w-full px-4 py-1 border rounded-lg disabled:opacity-50 focus:outline-none ${
     hasError
       ? 'border-red-500 placeholder-red-500'
       : 'border-gray-300 placeholder-gray-400'
   } text-black focus:border-black bg-white`;
 
-  const darkBaseClassName = `w-full px-4 py-2 border rounded disabled:opacity-50 focus:outline-none focus:border-white ${
+  const darkBaseClassName = `w-full px-4 py-1 border rounded-lg disabled:opacity-50 focus:outline-none focus:border-white ${
     hasError
       ? 'border-red-500 placeholder-red-400'
       : 'border-white/20 placeholder-white/50'
@@ -69,7 +69,7 @@ export function FormInput(props: FormInputComponentProps) {
 
   const inputClassName = `${isDark ? darkBaseClassName : lightBaseClassName} ${className || ''}`.trim();
   const errorTextColor = isDark ? 'text-red-400' : 'text-red-500';
-  const errorOverlayPadding = isDark ? 'px-4 py-2' : 'px-4 py-3';
+  const errorOverlayPadding = 'px-4 py-1';
 
   if (props.isTextarea) {
     return (
@@ -111,7 +111,6 @@ export function FormInput(props: FormInputComponentProps) {
         placeholder={placeholder}
         title={error || ''}
         className={inputClassName}
-        style={isDark ? { backgroundColor: 'rgba(255, 255, 255, 0.1)' } : undefined}
         autoComplete={isDark ? 'off' : undefined}
         data-checkout-input={isDark ? 'true' : undefined}
         {...props.inputProps}

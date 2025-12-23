@@ -7,6 +7,7 @@ import { exhibitionFormSchema, type ExhibitionFormData } from "@/utils/validatio
 import { ZodError } from "zod";
 import { formatZodErrors } from "@/utils/form-helpers";
 import { FormInput } from "@/components/FormInput";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export function ExhibitionBlock({
   exhibition,
@@ -17,6 +18,8 @@ export function ExhibitionBlock({
   const [formData, setFormData] = useState({ name: "", email: "" });
   const [errors, setErrors] = useState<Partial<Record<keyof ExhibitionFormData, string>>>({});
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const { theme } = useTheme();
+  const isLight = theme === "light";
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -105,34 +108,34 @@ export function ExhibitionBlock({
   };
 
   return (
-    <section className="w-full bg-black flex items-center pt-28 xl:pt-35">
+    <section className={`w-full flex items-center pt-28 xl:pt-35 ${isLight ? 'bg-white' : 'bg-black'}`}>
       <div className="w-full flex flex-col xl:flex-row xl:items-center">
         <div className="w-full xl:w-[45%] h-auto xl:h-[65vh] xl:px-16 xl:ml-10 flex items-center">
           <div className="p-8 xl:p-12 w-full flex flex-col justify-center">
-            <h2 className="text-white text-center text-4xl font-bold mb-8 text-shadow-lg/30">{exhibition.title}</h2>
+            <h2 className={`font-caudex text-center text-4xl font-bold mb-8 ${isLight ? 'text-black' : 'text-white text-shadow-lg/30'}`}>{exhibition.title}</h2>
             
             {(exhibition.date || exhibition.time) && (
               <div className="md:flex justify-evenly mb-8 text-center">
                 {exhibition.date && (
-                  <p className="text-white text-xl mb-2 md:mb-0 text-shadow-lg/30">
+                  <p className={`font-caudex text-xl mb-2 md:mb-0 ${isLight ? 'text-black' : 'text-white text-shadow-lg/30'}`}>
                     <strong>Date:</strong> {formatDate(exhibition.date)}
                   </p>
                 )}
                 {exhibition.time && (
-                  <p className="text-white text-xl text-shadow-lg/30">
+                  <p className={`font-caudex text-xl ${isLight ? 'text-black' : 'text-white text-shadow-lg/30'}`}>
                     <strong>Time:</strong> {formatTime(exhibition.time, exhibition.endTime)}
                   </p>
                 )}
               </div>
             )}
 
-            <div className="text-white text-base md:text-xl text-center leading-relaxed mb-6 whitespace-pre-line text-shadow-lg/30">
+            <div className={`font-caudex text-base md:text-xl text-center leading-relaxed mb-6 whitespace-pre-line ${isLight ? 'text-black' : 'text-white text-shadow-lg/30'}`}>
               <ReactMarkdown>{exhibition.description}</ReactMarkdown>
             </div>
 
             {exhibition.location && (
               <div className="mb-8 text-center">
-                <p className="text-white text-xl text-shadow-lg/30">
+                <p className={`font-caudex text-xl ${isLight ? 'text-black' : 'text-white text-shadow-lg/30'}`}>
                   <strong>Location:</strong> {exhibition.location}
                 </p>
               </div>
@@ -140,10 +143,14 @@ export function ExhibitionBlock({
 
             <button
               onClick={() => setShowForm(true)}
-              className={`bg-black text-white px-8 py-2 rounded-lg text-xl font-bold border border-white hover:bg-white hover:text-black hover:border-black hover:scale-110 shadow-sm shadow-white self-center ${
+              className={`font-caudex px-20 py-2 rounded-lg text-xl font-bold border hover:scale-110 shadow-sm self-center transition-all duration-300 ease-in-out ${
+                isLight
+                  ? 'bg-black text-white border-black hover:bg-white hover:text-black hover:border-white shadow-black'
+                  : 'bg-black text-white border-white hover:bg-white hover:text-black hover:border-black shadow-white'
+              } ${
                 showForm 
                   ? 'invisible pointer-events-none' 
-                  : 'visible transition-all duration-300 ease-in-out'
+                  : 'visible'
               }`}
             >
               Book
@@ -162,7 +169,7 @@ export function ExhibitionBlock({
               />
               {submitStatus === "success" && (
                 <div className="absolute top-0 left-10 md:left-0 right-0 p-6 text-center">
-                  <p className="text-white text-2xl lg:text-3xl text-shadow-lg/30">
+                  <p className={`font-caudex text-2xl lg:text-3xl ${isLight ? 'text-black' : 'text-white text-shadow-lg/30'}`}>
                     Thank you! Your booking has been registered.
                   </p>
                 </div>
@@ -170,7 +177,7 @@ export function ExhibitionBlock({
             </div>
           ) : (
             <div className="relative rounded-tl-[8rem] rounded-bl-[8rem] p-12 h-full flex flex-col justify-center overflow-hidden">
-              {/* Background image with fade effect */}
+      
               {exhibition.image && (
                 <>
                   <div className="absolute inset-0 z-0">
@@ -181,7 +188,7 @@ export function ExhibitionBlock({
                       className="object-cover opacity-30"
                     />
                   </div>
-                  {/* Dark overlay for better readability */}
+                 
                   <div className="absolute inset-0 bg-black/40 z-0"></div>
                 </>
               )}
@@ -189,7 +196,7 @@ export function ExhibitionBlock({
               {/* Form content */}
               <form onSubmit={handleSubmit} noValidate className="space-y-6 relative z-10">
                   {submitStatus === "success" && (
-                    <div className="px-4 py-3 rounded-lg text-xl lg:text-3xl">
+                    <div className="px-4 py-3 rounded-lg text-xl lg:text-3xl font-caudex">
                       Thank you! Your booking has been registered.
                     </div>
                   )}
@@ -199,11 +206,11 @@ export function ExhibitionBlock({
                   </div>
                 )}
                 <div className="max-w-fit mx-auto">
-                  <p className="text-white text-center text-2xl lg:text-3xl mb-10 md:mb-20 -mt-8 text-shadow-lg/30">
+                  <p className={`font-caudex text-center text-2xl lg:text-3xl mb-6 md:mb-20 -mt-4 ${isLight ? 'text-black' : 'text-white text-shadow-lg/30'}`}>
                     Please fill in your information for the booking.
                   </p>
                   <div>
-                    <label htmlFor="name" className="block text-white text-xl mb-2 text-shadow-lg/30">
+                    <label htmlFor="name" className={`block font-caudex text-xl sm:text-2xl mb-2 ${isLight ? 'text-black' : 'text-white text-shadow-lg/30'}`}>
                       Name
                     </label>
                     <FormInput
@@ -216,11 +223,11 @@ export function ExhibitionBlock({
                       onChange={handleInputChange}
                       disabled={isSubmitting}
                       defaultPlaceholder="Enter your name"
-                      className="shadow-sm shadow-black"
+                      className="shadow-sm shadow-black "
                     />
                   </div>
-                  <div className="mt-6">
-                    <label htmlFor="email" className="block text-white text-xl mb-2 text-shadow-lg/30">
+                  <div className="mt-4 sm:mt-8">
+                    <label htmlFor="email" className={`block font-caudex text-xl sm:text-2xl mb-2 ${isLight ? 'text-black' : 'text-white text-shadow-lg/30'}`}>
                       Email
                     </label>
                     <FormInput
@@ -240,7 +247,7 @@ export function ExhibitionBlock({
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="bg-white text-black px-8 py-2 rounded-lg text-xl font-bold border border-black hover:bg-black hover:text-white hover:scale-110 transition-all duration-300 ease-in-out shadow-sm shadow-black disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="bg-white font-caudex text-black px-8 py-2 rounded-lg text-xl font-bold border border-black hover:bg-black hover:text-white hover:scale-110 transition-all duration-300 ease-in-out shadow-sm shadow-black disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSubmitting ? "Submitting..." : "Book"}
                   </button>
@@ -253,7 +260,7 @@ export function ExhibitionBlock({
                       setErrors({});
                     }}
                     disabled={isSubmitting}
-                    className="bg-white text-black px-8 py-2 rounded-lg text-xl font-bold border border-black hover:bg-black hover:text-white hover:scale-110 transition-all duration-300 ease-in-out shadow-sm shadow-black disabled:opacity-50"
+                    className="bg-white font-caudex text-black px-8 py-2 rounded-lg text-xl font-bold border border-black hover:bg-black hover:text-white hover:scale-110 transition-all duration-300 ease-in-out shadow-sm shadow-black disabled:opacity-50"
                     >
                       Cancel
                     </button>

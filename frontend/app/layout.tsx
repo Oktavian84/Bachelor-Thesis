@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Lugrasimo, Caudex, DM_Serif_Text } from "next/font/google";
+import { Lugrasimo, Caudex } from "next/font/google";
 import "./globals.css";
 import { getGlobalSettings } from "@/data/loaders";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CartProvider } from "@/contexts/CartContext";
 import { ScrollSnapProvider } from "@/contexts/ScrollSnapContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 
 const lugrasimo = Lugrasimo({
   variable: "--font-lugrasimo",
@@ -17,12 +18,6 @@ const caudex = Caudex({
   variable: "--font-caudex",
   subsets: ["latin"],
   weight: ["400", "700"],
-});
-
-const dmSerifText = DM_Serif_Text({
-  variable: "--font-dm-serif-text",
-  subsets: ["latin"],
-  weight: "400",
 });
 
 export const metadata: Metadata = {
@@ -42,8 +37,9 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="en">
       <body
-        className={`${lugrasimo.variable} ${caudex.variable} ${dmSerifText.variable} antialiased flex flex-col`}
+        className={`${lugrasimo.variable} ${caudex.variable} antialiased flex flex-col dark`}
       >
+              <ThemeProvider>
               <CartProvider>
                 <ScrollSnapProvider>
                   <Header data={header} />
@@ -51,6 +47,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
                   <Footer data={footer} />
                 </ScrollSnapProvider>
               </CartProvider>
+              </ThemeProvider>
       </body>
     </html>
   );
