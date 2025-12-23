@@ -27,9 +27,13 @@ export const metadata: Metadata = {
 };
 
 async function loader() {
-  const { data } = await getGlobalSettings();
-  if (!data) throw new Error("Global settings not found");
-  return { header: data?.header, footer: data?.footer };
+  const res = await getGlobalSettings()
+  const data = res?.data
+
+  return {
+    header: data?.header ?? null,
+    footer: data?.footer ?? null,
+  }
 }
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
