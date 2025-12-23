@@ -101,6 +101,7 @@ export interface GalleryItem {
   image: ImageProps;
   price: number;
   slug: string;
+  Dimensions?: string;
 }
 
 export interface GalleryBlockProps extends Base<"blocks.gallery-block"> {

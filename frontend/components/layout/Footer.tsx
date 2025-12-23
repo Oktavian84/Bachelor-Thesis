@@ -29,7 +29,7 @@ export function Footer({ data }: FooterProps) {
                   <Link
                     href={item.href}
                     target={item.isExternal ? "_blank" : "_self"}
-                    className={`text-lg transition-all duration-300 relative group pb-1 px-3 py-1 rounded-tr-[8rem] rounded-tl-[8rem] rounded-br-[8rem] rounded-bl-[8rem] ${
+                    className={`font-lugrasimo text-lg transition-all duration-300 relative group pb-1 px-3 py-1 rounded-tr-[8rem] rounded-tl-[8rem] rounded-br-[8rem] rounded-bl-[8rem] ${
                       isActive
                         ? "bg-white text-black"
                         : "text-white hover:bg-white/40 hover:text-white"
