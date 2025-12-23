@@ -145,9 +145,17 @@ const globalSettingQuery = qs.stringify({
 });
 
 export async function getGlobalSettings() {
-  const path = "/api/global";
-  const url = new URL(path, BASE_URL);
-  url.search = globalSettingQuery;
-  return fetchAPI(url.href, { method: "GET" });
+  const base = process.env.STRAPI_API_URL
+  if (!base) return null
+
+  const url = new URL("/api/global", base)
+  url.search = globalSettingQuery
+
+  try {
+    return await fetchAPI(url.href, { method: "GET" })
+  } catch (e) {
+    console.error("getGlobalSettings failed", e)
+    return null
+  }
 }
 
