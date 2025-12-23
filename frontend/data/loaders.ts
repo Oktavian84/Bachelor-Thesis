@@ -1,8 +1,29 @@
-import qs from "qs";
-import { fetchAPI } from "@/utils/fetch-api";
-import { getStrapiURL } from "@/utils/get-strapi-url";
+import qs from "qs"
+import { fetchAPI } from "@/utils/fetch-api"
 
-const BASE_URL = getStrapiURL();
+/**
+ * Single source of truth for Strapi base URL
+ * Must be an absolute URL, e.g.
+ * https://your-strapi-production-domain
+ */
+const STRAPI_BASE_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL
+
+function buildStrapiUrl(path: string, query?: string) {
+  if (!STRAPI_BASE_URL) return null
+
+  try {
+    const url = new URL(path, STRAPI_BASE_URL)
+    if (query) url.search = query
+    return url.href
+  } catch (e) {
+    console.error("Invalid Strapi URL", { path, STRAPI_BASE_URL })
+    return null
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* HOME PAGE QUERY                                                             */
+/* -------------------------------------------------------------------------- */
 
 const homePageQuery = qs.stringify({
   populate: {
@@ -27,76 +48,93 @@ const homePageQuery = qs.stringify({
       },
     },
   },
-});
+})
 
 export async function getHomePage() {
-  const path = "/api/home-page";
-  const url = new URL(path, BASE_URL);
-  url.search = homePageQuery;
+  const url = buildStrapiUrl("/api/home-page", homePageQuery)
+  if (!url) return { data: null }
 
-  return await fetchAPI(url.href, { method: "GET" });
+  try {
+    return await fetchAPI(url, { method: "GET" })
+  } catch (e) {
+    console.error("getHomePage failed", e)
+    return { data: null }
+  }
 }
 
-const pageBySlugQuery = (slug: string) => qs.stringify({
-  filters: {
-    slug: {
-      $eq: slug,
+/* -------------------------------------------------------------------------- */
+/* PAGE BY SLUG QUERY                                                          */
+/* -------------------------------------------------------------------------- */
+
+const pageBySlugQuery = (slug: string) =>
+  qs.stringify({
+    filters: {
+      slug: {
+        $eq: slug,
+      },
     },
-  },
-  populate: {
-    blocks: {
-      on: {
-        "blocks.hero-section": {
-          populate: {
-            image: {
-              fields: ["url", "alternativeText"],
-            },
-            cta: true,
-          },
-        },
-        "blocks.info-block": {
-          populate: {
-            image: {
-              fields: ["url", "alternativeText"],
+    populate: {
+      blocks: {
+        on: {
+          "blocks.hero-section": {
+            populate: {
+              image: {
+                fields: ["url", "alternativeText"],
+              },
+              cta: true,
             },
           },
-          fields: ["headline", "content", "reversed"],
-        },
-        "blocks.about-block": {
-          populate: "*",
-        },
-        "blocks.privacy-block": {
-          populate: "*",
-        },
-        "blocks.faq-block": {
-          populate: "*",
-        },
-        "blocks.contact-block": {
-          populate: {
-            image: {
-              fields: ["url", "alternativeText"],
+          "blocks.info-block": {
+            populate: {
+              image: {
+                fields: ["url", "alternativeText"],
+              },
             },
-            cta: true,
+            fields: ["headline", "content", "reversed"],
           },
-          fields: ["headline", "name", "number", "email", "buttonText", "content"],
-        },
-        "blocks.exhibition-block": {
-          populate: {
-            exhibition: {
-              populate: {
-                image: {
-                  fields: ["url", "alternativeText"],
+          "blocks.about-block": {
+            populate: "*",
+          },
+          "blocks.privacy-block": {
+            populate: "*",
+          },
+          "blocks.faq-block": {
+            populate: "*",
+          },
+          "blocks.contact-block": {
+            populate: {
+              image: {
+                fields: ["url", "alternativeText"],
+              },
+              cta: true,
+            },
+            fields: [
+              "headline",
+              "name",
+              "number",
+              "email",
+              "buttonText",
+              "content",
+            ],
+          },
+          "blocks.exhibition-block": {
+            populate: {
+              exhibition: {
+                populate: {
+                  image: {
+                    fields: ["url", "alternativeText"],
+                  },
                 },
               },
             },
           },
-        },
-        "blocks.gallery-block": {
-          populate: {
-            gallery_items: {
-              populate: {
-                image: {
-                  fields: ["url", "alternativeText"],
+          "blocks.gallery-block": {
+            populate: {
+              gallery_items: {
+                populate: {
+                  image: {
+                    fields: ["url", "alternativeText"],
+                  },
                 },
               },
             },
@@ -104,16 +142,24 @@ const pageBySlugQuery = (slug: string) => qs.stringify({
         },
       },
     },
-  },
-});
+  })
 
 export async function getPageBySlug(slug: string) {
-  const path = "/api/pages";
-  const url = new URL(path, BASE_URL);
-  url.search = pageBySlugQuery(slug);
-  
-  return await fetchAPI(url.href, { method: "GET" });
+  const query = pageBySlugQuery(slug)
+  const url = buildStrapiUrl("/api/pages", query)
+  if (!url) return { data: null }
+
+  try {
+    return await fetchAPI(url, { method: "GET" })
+  } catch (e) {
+    console.error("getPageBySlug failed", e)
+    return { data: null }
+  }
 }
+
+/* -------------------------------------------------------------------------- */
+/* GLOBAL SETTINGS QUERY                                                       */
+/* -------------------------------------------------------------------------- */
 
 const globalSettingQuery = qs.stringify({
   populate: {
@@ -142,20 +188,16 @@ const globalSettingQuery = qs.stringify({
       },
     },
   },
-});
+})
 
 export async function getGlobalSettings() {
-  const base = process.env.STRAPI_API_URL
-  if (!base) return null
-
-  const url = new URL("/api/global", base)
-  url.search = globalSettingQuery
+  const url = buildStrapiUrl("/api/global", globalSettingQuery)
+  if (!url) return { data: null }
 
   try {
-    return await fetchAPI(url.href, { method: "GET" })
+    return await fetchAPI(url, { method: "GET" })
   } catch (e) {
     console.error("getGlobalSettings failed", e)
-    return null
+    return { data: null }
   }
 }
-
