@@ -1,9 +1,7 @@
-'use client';
+"use client";
 
-import { InputHTMLAttributes, TextareaHTMLAttributes } from 'react';
-import { getInputValue, getInputPlaceholder } from '@/utils/form-helpers';
-
-type FormInputVariant = 'light' | 'dark';
+import type { InputHTMLAttributes, TextareaHTMLAttributes } from "react";
+import { getInputValue, getInputPlaceholder } from "@/utils/form-helpers";
 
 interface BaseInputProps {
   name: string;
@@ -15,20 +13,24 @@ interface BaseInputProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   disabled?: boolean;
   defaultPlaceholder: string;
-  variant?: FormInputVariant;
   isTextarea?: boolean;
+  className?: string;
 }
 
 interface FormInputProps extends BaseInputProps {
   isTextarea?: false;
-  className?: string;
-  inputProps?: Omit<InputHTMLAttributes<HTMLInputElement>, 'name' | 'value' | 'onChange' | 'onFocus' | 'onBlur' | 'disabled' | 'placeholder' | 'title' | 'className' | 'style' | 'autoComplete' | 'data-checkout-input'>;
+  inputProps?: Omit<
+    InputHTMLAttributes<HTMLInputElement>,
+    "name" | "value" | "onChange" | "onFocus" | "onBlur" | "disabled" | "placeholder" | "title" | "className"
+  >;
 }
 
 interface FormTextareaProps extends BaseInputProps {
   isTextarea: true;
-  className?: string;
-  textareaProps?: Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'name' | 'value' | 'onChange' | 'onFocus' | 'onBlur' | 'disabled' | 'placeholder' | 'title' | 'className'>;
+  textareaProps?: Omit<
+    TextareaHTMLAttributes<HTMLTextAreaElement>,
+    "name" | "value" | "onChange" | "onFocus" | "onBlur" | "disabled" | "placeholder" | "title" | "className"
+  >;
 }
 
 type FormInputComponentProps = FormInputProps | FormTextareaProps;
@@ -44,32 +46,29 @@ export function FormInput(props: FormInputComponentProps) {
     onChange,
     disabled = false,
     defaultPlaceholder,
-    variant = 'light',
     className,
   } = props;
 
   const isFocused = focusedField === name;
   const hasError = !!error;
+
   const displayValue = getInputValue(value, hasError, isFocused);
   const placeholder = getInputPlaceholder(value, error, defaultPlaceholder, isFocused);
 
-  const isDark = variant === 'dark';
-
-  const lightBaseClassName = `w-full px-4 py-1 border rounded-lg disabled:opacity-50 focus:outline-none ${
+  const base = [
+    "w-full px-4 py-1 border rounded-lg disabled:opacity-50 focus:outline-none",
+    "bg-white text-black border-gray-300 placeholder-gray-400 focus:border-black",
+    "dark:bg-black/10 dark:text-white dark:border-white/20 dark:placeholder-white/50 dark:focus:border-white",
     hasError
-      ? 'border-red-500 placeholder-red-500'
-      : 'border-gray-300 placeholder-gray-400'
-  } text-black focus:border-black bg-white`;
+      ? "border-red-500 placeholder-red-500 dark:placeholder-red-400"
+      : "",
+    className || "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
-  const darkBaseClassName = `w-full px-4 py-1 border rounded-lg disabled:opacity-50 focus:outline-none focus:border-white ${
-    hasError
-      ? 'border-red-500 placeholder-red-400'
-      : 'border-white/20 placeholder-white/50'
-  } text-white`;
-
-  const inputClassName = `${isDark ? darkBaseClassName : lightBaseClassName} ${className || ''}`.trim();
-  const errorTextColor = isDark ? 'text-red-400' : 'text-red-500';
-  const errorOverlayPadding = 'px-4 py-1';
+  const errorText = "text-red-500 dark:text-red-400";
+  const overlayPad = "px-4 py-1";
 
   if (props.isTextarea) {
     return (
@@ -83,14 +82,14 @@ export function FormInput(props: FormInputComponentProps) {
           onBlur={onBlur}
           disabled={disabled}
           placeholder={placeholder}
-          title={error || ''}
-          className={inputClassName}
+          title={error || ""}
+          className={base}
           rows={6}
           {...props.textareaProps}
         />
         {error && value && !isFocused && (
           <div className="absolute top-3 left-4 pointer-events-none">
-            <span className={`${errorTextColor} text-sm`}>{error}</span>
+            <span className={`${errorText} text-sm`}>{error}</span>
           </div>
         )}
       </div>
@@ -109,18 +108,16 @@ export function FormInput(props: FormInputComponentProps) {
         onBlur={onBlur}
         disabled={disabled}
         placeholder={placeholder}
-        title={error || ''}
-        className={inputClassName}
-        autoComplete={isDark ? 'off' : undefined}
-        data-checkout-input={isDark ? 'true' : undefined}
+        title={error || ""}
+        className={base}
+        autoComplete="off"
         {...props.inputProps}
       />
       {error && value && !isFocused && (
-        <div className={`absolute inset-0 ${errorOverlayPadding} pointer-events-none flex items-center`}>
-          <span className={`${errorTextColor} text-sm`}>{error}</span>
+        <div className={`absolute inset-0 ${overlayPad} pointer-events-none flex items-center`}>
+          <span className={`${errorText} text-sm`}>{error}</span>
         </div>
       )}
     </div>
   );
 }
-

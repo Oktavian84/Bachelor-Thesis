@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { StrapiImage } from "../StrapiImage";
 import type { GalleryBlockProps } from "@/types";
 import { useCart } from "@/contexts/CartContext";
-import { useTheme } from "@/contexts/ThemeContext";
 
 const DRAG_ANIMATION_DURATION = 1200;
 const WHEEL_ANIMATION_DURATION = 200;
@@ -14,9 +13,8 @@ const WHEEL_THROTTLE_MS = 16;
 export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const [clickedImageRect, setClickedImageRect] = useState<DOMRect | null>(
-    null
-  );
+  const [clickedImageRect, setClickedImageRect] = useState<DOMRect | null>(null);
+
   const trackRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement | null>(null);
   const mouseDownAtRef = useRef<number>(0);
@@ -24,9 +22,8 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
   const percentageRef = useRef<number>(0);
   const wheelThrottleRef = useRef<number>(0);
   const animationFrameRef = useRef<number | null>(null);
+
   const { addItem } = useCart();
-  const { theme } = useTheme();
-  const isLight = theme === "light";
 
   const selectedItem = selectedImage
     ? gallery_items.find((item) => item.id === selectedImage)
@@ -50,10 +47,7 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
         handleClose();
       } else if (e.key === "ArrowLeft" && currentIndex > 0) {
         setSelectedImage(gallery_items[currentIndex - 1].id);
-      } else if (
-        e.key === "ArrowRight" &&
-        currentIndex < gallery_items.length - 1
-      ) {
+      } else if (e.key === "ArrowRight" && currentIndex < gallery_items.length - 1) {
         setSelectedImage(gallery_items[currentIndex + 1].id);
       }
     };
@@ -81,12 +75,8 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
       if (window.innerWidth < 1280) {
         const header = document.querySelector("header") as HTMLElement | null;
         const footer = document.querySelector("footer") as HTMLElement | null;
-        const closeButton = document.querySelector(
-          ".close-button-sm"
-        ) as HTMLElement | null;
-        const lightboxContainer = document.querySelector(
-          ".lightbox-container"
-        ) as HTMLElement | null;
+        const closeButton = document.querySelector(".close-button-sm") as HTMLElement | null;
+        const lightboxContainer = document.querySelector(".lightbox-container") as HTMLElement | null;
 
         if (footer) {
           footer.style.opacity = "0";
@@ -100,12 +90,10 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
           const scrollHeight = lightboxContainer.scrollHeight;
           const clientHeight = lightboxContainer.clientHeight;
           const isNearBottom = scrollTop + clientHeight >= scrollHeight - 50;
-          const isMenuOpen =
-            document.body.getAttribute("data-menu-open") === "true";
+          const isMenuOpen = document.body.getAttribute("data-menu-open") === "true";
 
           if (header) {
-            header.style.transform =
-              scrollTop > 15 ? "translateY(-100%)" : "translateY(0)";
+            header.style.transform = scrollTop > 15 ? "translateY(-100%)" : "translateY(0)";
           }
 
           if (closeButton) {
@@ -129,6 +117,7 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
         const menuObserver = new MutationObserver(() => {
           requestAnimationFrame(updateUI);
         });
+
         menuObserver.observe(document.body, {
           attributes: true,
           attributeFilter: ["data-menu-open"],
@@ -156,9 +145,7 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
 
       const header = document.querySelector("header") as HTMLElement | null;
       const footer = document.querySelector("footer") as HTMLElement | null;
-      const closeButton = document.querySelector(
-        ".close-button-sm"
-      ) as HTMLElement | null;
+      const closeButton = document.querySelector(".close-button-sm") as HTMLElement | null;
 
       if (header) header.style.transform = "";
       if (footer) {
@@ -182,47 +169,40 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
     const viewportWidth = window.innerWidth;
     const viewportCenter = viewportWidth / 2;
 
-    const imageContainers = trackRef.current.querySelectorAll<HTMLElement>(
-      ".gallery-image-container"
-    );
+    const imageContainers = trackRef.current.querySelectorAll<HTMLElement>(".gallery-image-container");
     imageContainers.forEach((container) => {
       const img = container.querySelector<HTMLElement>("img");
-      if (img) {
-        const containerRect = container.getBoundingClientRect();
-        const containerCenter = containerRect.left + containerRect.width / 2;
-        const distanceFromCenter = containerCenter - viewportCenter;
-        const normalizedDistance = distanceFromCenter / viewportWidth;
-        const basePosition = 50;
-        const positionAdjustment = normalizedDistance * 30;
-        const objectPosition = basePosition + positionAdjustment;
-        const clampedPosition = Math.max(40, Math.min(100, objectPosition));
+      if (!img) return;
 
-        img.animate(
-          {
-            objectPosition: `${clampedPosition}% center`,
-          },
-          { duration, fill: "forwards" }
-        );
-      }
+      const containerRect = container.getBoundingClientRect();
+      const containerCenter = containerRect.left + containerRect.width / 2;
+      const distanceFromCenter = containerCenter - viewportCenter;
+      const normalizedDistance = distanceFromCenter / viewportWidth;
+
+      const basePosition = 50;
+      const positionAdjustment = normalizedDistance * 30;
+      const objectPosition = basePosition + positionAdjustment;
+      const clampedPosition = Math.max(40, Math.min(100, objectPosition));
+
+      img.animate(
+        { objectPosition: `${clampedPosition}% center` },
+        { duration, fill: "forwards" }
+      );
     });
   }, []);
 
   const updateGalleryPosition = useCallback(
-    (nextPercentage: number, useSmoothAnimation: boolean = false) => {
+    (nextPercentage: number, useSmoothAnimation = false) => {
       if (!trackRef.current) return;
 
       percentageRef.current = nextPercentage;
 
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
+      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
 
       animationFrameRef.current = requestAnimationFrame(() => {
         if (!trackRef.current) return;
 
-        const duration = useSmoothAnimation
-          ? WHEEL_ANIMATION_DURATION
-          : DRAG_ANIMATION_DURATION;
+        const duration = useSmoothAnimation ? WHEEL_ANIMATION_DURATION : DRAG_ANIMATION_DURATION;
 
         trackRef.current.style.transition = `transform ${duration}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`;
         trackRef.current.style.transform = `translate(${nextPercentage}%, -50%)`;
@@ -251,12 +231,8 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
       const maxDelta = window.innerWidth / 2;
 
       const percentage = (mouseDelta / maxDelta) * -100;
-      const nextPercentageUnconstrained =
-        prevPercentageRef.current + percentage;
-      const nextPercentage = Math.max(
-        Math.min(nextPercentageUnconstrained, 0),
-        -100
-      );
+      const nextPercentageUnconstrained = prevPercentageRef.current + percentage;
+      const nextPercentage = Math.max(Math.min(nextPercentageUnconstrained, 0), -100);
 
       updateGalleryPosition(nextPercentage, false);
     },
@@ -270,20 +246,14 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
       e.preventDefault();
 
       const now = Date.now();
-      if (now - wheelThrottleRef.current < WHEEL_THROTTLE_MS) {
-        return;
-      }
+      if (now - wheelThrottleRef.current < WHEEL_THROTTLE_MS) return;
       wheelThrottleRef.current = now;
 
       const delta = e.deltaX !== 0 ? e.deltaX : e.deltaY;
       const percentageChange = (delta / WHEEL_SENSITIVITY) * -1;
 
-      const nextPercentageUnconstrained =
-        percentageRef.current + percentageChange;
-      const nextPercentage = Math.max(
-        Math.min(nextPercentageUnconstrained, 0),
-        -100
-      );
+      const nextPercentageUnconstrained = percentageRef.current + percentageChange;
+      const nextPercentage = Math.max(Math.min(nextPercentageUnconstrained, 0), -100);
 
       prevPercentageRef.current = nextPercentage;
       updateGalleryPosition(nextPercentage, true);
@@ -302,30 +272,26 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
     const viewportWidth = window.innerWidth;
     const viewportCenter = viewportWidth / 2;
 
-    const imageContainers = trackRef.current.querySelectorAll<HTMLElement>(
-      ".gallery-image-container"
-    );
+    const imageContainers = trackRef.current.querySelectorAll<HTMLElement>(".gallery-image-container");
     imageContainers.forEach((container) => {
       const img = container.querySelector<HTMLElement>("img");
-      if (img) {
-        const containerRect = container.getBoundingClientRect();
-        const containerCenter = containerRect.left + containerRect.width / 2;
-        const distanceFromCenter = containerCenter - viewportCenter;
-        const normalizedDistance = distanceFromCenter / viewportWidth;
+      if (!img) return;
 
-        const basePosition = 50;
-        const positionAdjustment = normalizedDistance * 30;
-        const objectPosition = basePosition + positionAdjustment;
-        const clampedPosition = Math.max(40, Math.min(100, objectPosition));
+      const containerRect = container.getBoundingClientRect();
+      const containerCenter = containerRect.left + containerRect.width / 2;
+      const distanceFromCenter = containerCenter - viewportCenter;
+      const normalizedDistance = distanceFromCenter / viewportWidth;
 
-        img.style.objectPosition = `${clampedPosition}% center`;
-      }
+      const basePosition = 50;
+      const positionAdjustment = normalizedDistance * 30;
+      const objectPosition = basePosition + positionAdjustment;
+      const clampedPosition = Math.max(40, Math.min(100, objectPosition));
+
+      img.style.objectPosition = `${clampedPosition}% center`;
     });
 
     return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
+      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
     };
   }, []);
 
@@ -352,54 +318,39 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
     if (!section) return;
 
     section.addEventListener("wheel", handleWheel, { passive: false });
-
-    return () => {
-      section.removeEventListener("wheel", handleWheel);
-    };
+    return () => section.removeEventListener("wheel", handleWheel);
   }, [handleWheel]);
 
   const handleImageClick = (itemId: number, event: React.MouseEvent) => {
-    if (mouseDownAtRef.current === 0) {
-      const clickedElement = event.currentTarget as HTMLElement;
-      const rect = clickedElement.getBoundingClientRect();
-      setClickedImageRect(rect);
-      setSelectedImage(itemId);
-      setIsLightboxOpen(true);
-    }
+    if (mouseDownAtRef.current !== 0) return;
+
+    const clickedElement = event.currentTarget as HTMLElement;
+    const rect = clickedElement.getBoundingClientRect();
+    setClickedImageRect(rect);
+    setSelectedImage(itemId);
+    setIsLightboxOpen(true);
   };
 
   const handlePrevious = () => {
-    if (currentIndex > 0) {
-      const prevItem = gallery_items[currentIndex - 1];
-      const prevElement = trackRef.current?.querySelector(
-        `[data-item-id="${prevItem.id}"]`
-      ) as HTMLElement;
-      if (prevElement) {
-        const rect = prevElement.getBoundingClientRect();
-        setClickedImageRect(rect);
-      }
-      setSelectedImage(prevItem.id);
-    }
+    if (currentIndex <= 0) return;
+    const prevItem = gallery_items[currentIndex - 1];
+    const prevElement = trackRef.current?.querySelector(`[data-item-id="${prevItem.id}"]`) as HTMLElement;
+    if (prevElement) setClickedImageRect(prevElement.getBoundingClientRect());
+    setSelectedImage(prevItem.id);
   };
 
   const handleNext = () => {
-    if (currentIndex < gallery_items.length - 1) {
-      const nextItem = gallery_items[currentIndex + 1];
-      const nextElement = trackRef.current?.querySelector(
-        `[data-item-id="${nextItem.id}"]`
-      ) as HTMLElement;
-      if (nextElement) {
-        const rect = nextElement.getBoundingClientRect();
-        setClickedImageRect(rect);
-      }
-      setSelectedImage(nextItem.id);
-    }
+    if (currentIndex >= gallery_items.length - 1) return;
+    const nextItem = gallery_items[currentIndex + 1];
+    const nextElement = trackRef.current?.querySelector(`[data-item-id="${nextItem.id}"]`) as HTMLElement;
+    if (nextElement) setClickedImageRect(nextElement.getBoundingClientRect());
+    setSelectedImage(nextItem.id);
   };
 
   if (!gallery_items || gallery_items.length === 0) {
     return (
-      <section className={`w-full flex items-center justify-center py-24 ${isLight ? 'bg-white' : 'bg-black'}`}>
-        <p className={`text-2xl ${isLight ? 'text-black' : 'text-white'}`}>No gallery items found</p>
+      <section className="w-full flex items-center justify-center py-24 bg-white text-black dark:bg-black dark:text-white">
+        <p className="text-2xl">No gallery items found</p>
       </section>
     );
   }
@@ -408,7 +359,7 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
     <>
       <section
         ref={sectionRef}
-        className={`w-full relative overflow-hidden h-[calc(100vh-200px)] sm:h-[calc(100vh-100px)] ${isLight ? 'bg-white' : 'bg-black'}`}
+        className="w-full relative overflow-hidden h-[calc(100vh-200px)] sm:h-[calc(100vh-100px)] bg-white dark:bg-black"
       >
         <div
           ref={trackRef}
@@ -441,34 +392,27 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{
-                opacity: 0,
-                transition: { duration: 1.0 },
-              }}
+              exit={{ opacity: 0, transition: { duration: 1.0 } }}
               transition={{ duration: 0.1 }}
-              className={`fixed inset-0 z-50 ${isLight ? 'bg-white' : 'bg-black'}`}
+              className="fixed inset-0 z-50 bg-white dark:bg-black"
               onClick={() => {
-                if (window.innerWidth >= 1280) {
-                  handleClose();
-                }
+                if (window.innerWidth >= 1280) handleClose();
               }}
             />
 
-            {isLightboxOpen && (
-              <motion.button
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0, transition: { duration: 0 } }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleClose();
-                }}
-                className="close-button-sm fixed top-25 right-8 w-8 h-8 rounded-full p-0 bg-white z-100 text-black text-3xl font-bold hover:opacity-70 transition-opacity xl:hidden pointer-events-auto flex items-center justify-center leading-none"
-                aria-label="Close"
-              >
-                ×
-              </motion.button>
-            )}
+            <motion.button
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, transition: { duration: 0 } }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleClose();
+              }}
+              className="close-button-sm fixed top-25 right-8 w-8 h-8 rounded-full p-0 bg-white text-black z-100 text-3xl font-bold hover:opacity-70 transition-opacity xl:hidden pointer-events-auto flex items-center justify-center leading-none"
+              aria-label="Close"
+            >
+              ×
+            </motion.button>
 
             <div className="lightbox-container fixed inset-0 z-50 flex items-start xl:items-center justify-start xl:justify-center pointer-events-none overflow-y-auto xl:overflow-hidden pt-26 xl:pt-0">
               <div
@@ -478,14 +422,8 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
                 <div className="w-full flex flex-col xl:flex-row">
                   <motion.div
                     initial={{
-                      x:
-                        clickedImageRect.left +
-                        clickedImageRect.width / 2 -
-                        window.innerWidth / 2,
-                      y:
-                        clickedImageRect.top +
-                        clickedImageRect.height / 2 -
-                        window.innerHeight / 2,
+                      x: clickedImageRect.left + clickedImageRect.width / 2 - window.innerWidth / 2,
+                      y: clickedImageRect.top + clickedImageRect.height / 2 - window.innerHeight / 2,
                       width: clickedImageRect.width,
                       height: clickedImageRect.height,
                     }}
@@ -495,81 +433,51 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
                       width: window.innerWidth < 1280 ? "90%" : "60%",
                       height: "75vh",
                     }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 200,
-                      damping: 25,
-                      mass: 0.8,
-                    }}
+                    transition={{ type: "spring", stiffness: 200, damping: 25, mass: 0.8 }}
                     exit={{
-                      x:
-                        clickedImageRect.left +
-                        clickedImageRect.width / 2 -
-                        window.innerWidth / 2,
-                      y:
-                        clickedImageRect.top +
-                        clickedImageRect.height / 2 -
-                        window.innerHeight / 2,
+                      x: clickedImageRect.left + clickedImageRect.width / 2 - window.innerWidth / 2,
+                      y: clickedImageRect.top + clickedImageRect.height / 2 - window.innerHeight / 2,
                       width: clickedImageRect.width,
                       height: clickedImageRect.height,
                       opacity: 0,
-                      transition: {
-                        type: "tween",
-                        duration: 0.25,
-                        ease: "easeIn",
-                      },
+                      transition: { type: "tween", duration: 0.25, ease: "easeIn" },
                     }}
                     className="w-[90%] xl:w-[60%] h-[50vh] xl:h-[75vh] ml-0 xl:mx-0"
                   >
                     <div className="relative w-full h-full rounded-tr-[8rem] xl:rounded-br-[8rem] rounded-br-[8rem] xl:rounded-tr-[8rem] overflow-hidden">
                       <StrapiImage
                         src={selectedItem.image.url}
-                        alt={
-                          selectedItem.image.alternativeText ||
-                          selectedItem.title
-                        }
+                        alt={selectedItem.image.alternativeText || selectedItem.title}
                         fill
                         className="object-cover"
                       />
+
                       {currentIndex > 0 && (
                         <motion.button
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
-                          exit={{
-                            opacity: 0,
-                            transition: {
-                              type: "tween",
-                              duration: 0.25,
-                              ease: "easeIn",
-                            },
-                          }}
+                          exit={{ opacity: 0, transition: { type: "tween", duration: 0.25, ease: "easeIn" } }}
                           onClick={(e) => {
                             e.stopPropagation();
                             handlePrevious();
                           }}
-                          className={`absolute left-4 xl:left-8 top-1/2 -translate-y-1/2 text-6xl font-bold hover:opacity-70 transition-all duration-300 z-100 cursor-pointer py-8 ${isLight ? 'text-black' : 'text-white'}`}
+                          className="absolute left-4 xl:left-8 top-1/2 -translate-y-1/2 text-6xl font-bold hover:opacity-70 transition-all duration-300 z-100 cursor-pointer py-8 text-black dark:text-white"
                           aria-label="Previous"
                         >
                           ‹
                         </motion.button>
                       )}
+
                       {currentIndex < gallery_items.length - 1 && (
                         <motion.button
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
-                          exit={{
-                            opacity: 0,
-                            transition: {
-                              type: "tween",
-                              duration: 0.25,
-                              ease: "easeIn",
-                            },
-                          }}
+                          exit={{ opacity: 0, transition: { type: "tween", duration: 0.25, ease: "easeIn" } }}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleNext();
                           }}
-                          className={`absolute right-4 xl:right-8 top-1/2 -translate-y-1/2 text-6xl font-bold hover:opacity-70 transition-all duration-300 z-100 cursor-pointer py-8 ${isLight ? 'text-black' : 'text-white'}`}
+                          className="absolute right-4 xl:right-8 top-1/2 -translate-y-1/2 text-6xl font-bold hover:opacity-70 transition-all duration-300 z-100 cursor-pointer py-8 text-black dark:text-white"
                           aria-label="Next"
                         >
                           ›
@@ -581,82 +489,59 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
                   <motion.div
                     initial={{
                       x: clickedImageRect.right,
-                      y:
-                        clickedImageRect.top +
-                        clickedImageRect.height / 2 -
-                        window.innerHeight / 2,
+                      y: clickedImageRect.top + clickedImageRect.height / 2 - window.innerHeight / 2,
                       scaleX: 0,
                     }}
-                    animate={{
-                      x: 0,
-                      y: 0,
-                      scaleX: 1,
-                    }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 200,
-                      damping: 25,
-                      mass: 0.8,
-                    }}
+                    animate={{ x: 0, y: 0, scaleX: 1 }}
+                    transition={{ type: "spring", stiffness: 200, damping: 25, mass: 0.8 }}
                     exit={{
                       x: clickedImageRect.right,
-                      y:
-                        clickedImageRect.top +
-                        clickedImageRect.height / 2 -
-                        window.innerHeight / 2,
+                      y: clickedImageRect.top + clickedImageRect.height / 2 - window.innerHeight / 2,
                       scaleX: 0,
                       opacity: 0,
-                      transition: {
-                        type: "tween",
-                        duration: 0.25,
-                        ease: "easeIn",
-                      },
+                      transition: { type: "tween", duration: 0.25, ease: "easeIn" },
                     }}
                     className="w-full xl:w-[35%] xl:ml-auto mt-4 xl:mt-0"
-                    style={{
-                      transformOrigin: "left center",
-                    }}
+                    style={{ transformOrigin: "left center" }}
                   >
-                    <div className={`p-6 xl:p-12 h-auto xl:h-[75vh] flex flex-col xl:justify-center ${isLight ? 'bg-white' : 'bg-black'}`}>
-                      <h2 className={`font-caudex text-center text-3xl sm:text-4xl font-bold mb-8 ${isLight ? 'text-black' : 'text-white'}`}>
+                    <div className="p-6 xl:p-12 h-auto xl:h-[75vh] flex flex-col xl:justify-center bg-white text-black dark:bg-black dark:text-white">
+                      <h2 className="font-caudex text-center text-3xl sm:text-4xl font-bold mb-8">
                         {selectedItem.title}
                       </h2>
-                      <div className={`font-caudex md:text-[1.16rem] text-center leading-relaxed mb-2 whitespace-pre-line ${isLight ? 'text-black' : 'text-white'}`}>
+
+                      <div className="font-caudex md:text-[1.16rem] text-center leading-relaxed mb-2 whitespace-pre-line">
                         {selectedItem.description}
                       </div>
+
                       <div className="pt-4">
                         <div className="flex flex-wrap items-center justify-center gap-6 xl:flex-col xl:gap-6">
                           {selectedItem.Dimensions && (
-                            <div className={`text-center ${isLight ? 'text-black' : 'text-white'}`}>
+                            <div className="text-center">
                               <p className="font-caudex text-xl md:text-2xl font-bold">
                                 {selectedItem.Dimensions}
                               </p>
                             </div>
                           )}
-                          <div className={`text-center ${isLight ? 'text-black' : 'text-white'}`}>
+
+                          <div className="text-center">
                             <p className="font-caudex text-xl md:text-2xl font-bold">
                               Price: {selectedItem.price} SEK
                             </p>
                           </div>
+
                           <button
                             onClick={() => {
-                              if (selectedItem) {
-                                addItem({
-                                  id: selectedItem.id,
-                                  documentId: selectedItem.documentId,
-                                  title: selectedItem.title,
-                                  image: selectedItem.image,
-                                  price: selectedItem.price,
-                                  slug: selectedItem.slug,
-                                });
-                                setIsLightboxOpen(false);
-                              }
+                              addItem({
+                                id: selectedItem.id,
+                                documentId: selectedItem.documentId,
+                                title: selectedItem.title,
+                                image: selectedItem.image,
+                                price: selectedItem.price,
+                                slug: selectedItem.slug,
+                              });
+                              setIsLightboxOpen(false);
                             }}
-                            className={`font-caudex px-20 py-2 mb-2 xl:mb-0 rounded-lg text-xl md:text-2xl font-bold border hover:scale-110 transition-all duration-300 ease-in-out ${
-                              isLight
-                                ? 'bg-black text-white border-black hover:bg-white hover:text-black hover:border-white shadow-sm shadow-black'
-                                : 'bg-black text-white border-white hover:bg-white hover:text-black hover:border-black shadow-sm shadow-white'
-                            }`}
+                            className="font-caudex px-20 py-2 mb-2 xl:mb-0 rounded-lg text-xl md:text-2xl font-bold border hover:scale-110 transition-all duration-300 ease-in-out bg-black text-white border-black hover:bg-white hover:text-black hover:border-white shadow-sm shadow-black dark:bg-black dark:text-white dark:border-white dark:hover:bg-white dark:hover:text-black dark:hover:border-black dark:shadow-white"
                           >
                             Buy
                           </button>

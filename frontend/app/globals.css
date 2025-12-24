@@ -4,39 +4,24 @@
   --foreground: #171717;
 }
 
-/* Font utility classes */
-.font-lugrasimo {
-  font-family: var(--font-lugrasimo), serif;
+/* Theme variables driven by html class */
+html.light {
+  --foreground: #171717;
+  background: white;
 }
 
-.font-caudex {
-  font-family: var(--font-caudex), serif;
+html.dark {
+  --foreground: #ededed;
+  background: black;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground: #ededed;
-  }
-}
-
+/* Base html and body */
 html {
   scroll-behavior: smooth;
   overscroll-behavior: none;
-  overscroll-behavior-y: none;
   -webkit-overflow-scrolling: touch;
   overflow-x: hidden;
-  /* Default till vit bakgrund (light mode) */
   background: white;
-}
-
-/* Light mode - vit bakgrund */
-html.light {
-  background: white;
-}
-
-/* Dark mode - svart bakgrund */
-html.dark {
-  background: black;
 }
 
 body {
@@ -44,13 +29,21 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans);
   overscroll-behavior: none;
-  overscroll-behavior-y: none;
   position: relative;
   overflow-x: hidden;
   touch-action: pan-y;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+/* Font utility classes */
+.font-lugrasimo {
+  font-family: var(--font-lugrasimo), serif;
+}
+
+.font-caudex {
+  font-family: var(--font-caudex), serif;
 }
 
 section {
@@ -68,6 +61,7 @@ main {
   flex-direction: column;
 }
 
+/* Gallery */
 #image-track,
 .gallery-track {
   display: flex;
@@ -95,6 +89,7 @@ main {
   pointer-events: none;
 }
 
+/* Autofill light */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
@@ -111,6 +106,7 @@ textarea:-webkit-autofill:active {
   -webkit-text-fill-color: black;
 }
 
+/* Autofill checkout inputs (intended dark style) */
 input[data-checkout-input]:-webkit-autofill,
 input[data-checkout-input]:-webkit-autofill:hover,
 input[data-checkout-input]:-webkit-autofill:focus,
@@ -125,4 +121,3 @@ input[data-checkout-input]:-webkit-autofill:active {
 input[data-checkout-input] {
   background-color: rgba(255, 255, 255, 0.1);
 }
-
