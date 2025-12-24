@@ -25,16 +25,16 @@ html {
   overscroll-behavior-y: none;
   -webkit-overflow-scrolling: touch;
   overflow-x: hidden;
+  /* Default till vit bakgrund (light mode) */
+  background: white;
 }
 
-html {
-  background: black;
-}
-
+/* Light mode - vit bakgrund */
 html.light {
-  background: black;
+  background: white;
 }
 
+/* Dark mode - svart bakgrund */
 html.dark {
   background: black;
 }

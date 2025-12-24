@@ -1,11 +1,6 @@
 import qs from "qs"
 import { fetchAPI } from "@/utils/fetch-api"
 
-/**
- * Single source of truth for Strapi base URL
- * Must be an absolute URL, e.g.
- * https://your-strapi-production-domain
- */
 const STRAPI_BASE_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL
 
 function buildStrapiUrl(path: string, query?: string) {
@@ -20,10 +15,6 @@ function buildStrapiUrl(path: string, query?: string) {
     return null
   }
 }
-
-/* -------------------------------------------------------------------------- */
-/* HOME PAGE QUERY                                                             */
-/* -------------------------------------------------------------------------- */
 
 const homePageQuery = qs.stringify({
   populate: {
@@ -61,10 +52,6 @@ export async function getHomePage() {
     return { data: null }
   }
 }
-
-/* -------------------------------------------------------------------------- */
-/* PAGE BY SLUG QUERY                                                          */
-/* -------------------------------------------------------------------------- */
 
 const pageBySlugQuery = (slug: string) =>
   qs.stringify({
@@ -156,10 +143,6 @@ export async function getPageBySlug(slug: string) {
     return { data: null }
   }
 }
-
-/* -------------------------------------------------------------------------- */
-/* GLOBAL SETTINGS QUERY                                                       */
-/* -------------------------------------------------------------------------- */
 
 const globalSettingQuery = qs.stringify({
   populate: {
