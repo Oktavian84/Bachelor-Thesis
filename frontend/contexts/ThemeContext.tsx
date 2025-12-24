@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useLayoutEffect, useState, ReactNode } from "react";
 
 type Theme = "dark" | "light";
 
@@ -16,32 +16,21 @@ const ThemeContext = createContext<ThemeContextType>({
   setTheme: () => {},
 });
 
-function readInitialTheme(): Theme {
+function getInitialTheme(): Theme {
   if (typeof window === "undefined") return "light";
-
-  const root = document.documentElement;
-
-  if (root.classList.contains("dark")) return "dark";
-  if (root.classList.contains("light")) return "light";
-
-  const saved = window.localStorage.getItem("theme");
-  if (saved === "dark" || saved === "light") return saved;
-
-  return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
-
-function applyTheme(theme: Theme) {
-  const root = document.documentElement;
-  root.classList.remove("dark", "light");
-  root.classList.add(theme);
+  const saved = localStorage.getItem("theme");
+  return (saved === "dark" || saved === "light") ? saved : "light";
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(() => readInitialTheme());
+  const [theme, setThemeState] = useState<Theme>(getInitialTheme);
 
-  useEffect(() => {
-    applyTheme(theme);
-    window.localStorage.setItem("theme", theme);
+  // Uppdatera HTML class och localStorage när theme ändras (inklusive initial mount)
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    root.classList.remove("dark", "light");
+    root.classList.add(theme);
+    localStorage.setItem("theme", theme);
   }, [theme]);
 
   const setTheme = (t: Theme) => setThemeState(t);

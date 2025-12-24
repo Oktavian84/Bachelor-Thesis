@@ -26,22 +26,6 @@ export const metadata: Metadata = {
     "Discover stunning welded metal sculptures and art pieces. Each creation is a unique masterpiece of craftsmanship and creativity.",
 };
 
-const themeInitScript = `
-(function () {
-  try {
-    var saved = localStorage.getItem('theme');
-    var theme = (saved === 'dark' || saved === 'light')
-      ? saved
-      : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-
-    var root = document.documentElement;
-    root.classList.remove('dark', 'light');
-    root.classList.add(theme);
-    root.style.colorScheme = theme;
-  } catch (e) {}
-})();
-`;
-
 async function loader() {
   const res = await getGlobalSettings();
   const data = res?.data;
@@ -57,10 +41,6 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-      </head>
-
       <body className={`${lugrasimo.variable} ${caudex.variable} antialiased flex flex-col`}>
         <ThemeProvider>
           <CartProvider>
