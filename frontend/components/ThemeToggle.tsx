@@ -17,7 +17,13 @@ export function ThemeToggle({ inverted = false }: ThemeToggleProps) {
   return (
     <button
       type="button"
-      onClick={toggleTheme}
+      onClick={() => {
+        console.log("before", document.documentElement.className);
+        toggleTheme();
+        setTimeout(() => {
+          console.log("after", document.documentElement.className);
+        }, 0);
+      }}
       aria-label={`Switch to ${isLight ? "dark" : "light"} mode`}
       className={[
         "w-8 h-8 rounded-full flex items-center justify-center",

@@ -26,7 +26,6 @@ html {
 }
 
 body {
-  background: transparent;
   color: var(--foreground);
   font-family: var(--font-sans);
   overscroll-behavior: none;
@@ -36,6 +35,14 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+html.dark body {
+  background: black;
+}
+
+html.light body {
+  background: white;
 }
 
 .font-lugrasimo {
@@ -83,22 +90,21 @@ main {
   pointer-events: none;
 }
 
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-input:-webkit-autofill:active,
-textarea:-webkit-autofill,
-textarea:-webkit-autofill:hover,
-textarea:-webkit-autofill:focus,
-textarea:-webkit-autofill:active {
+html.light input:-webkit-autofill,
+html.light input:-webkit-autofill:hover,
+html.light input:-webkit-autofill:focus,
+html.light input:-webkit-autofill:active,
+html.light textarea:-webkit-autofill,
+html.light textarea:-webkit-autofill:hover,
+html.light textarea:-webkit-autofill:focus,
+html.light textarea:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 30px white inset;
-  -webkit-text-fill-color: black;
-  caret-color: black;
+  box-shadow: 0 0 0 30px white inset;
+  -webkit-text-fill-color: #000000;
+  color: #000000;
+  caret-color: #000000;
+  border-color: black;
 }
-
-/* =========================
-   Autofill – dark theme
-   ========================= */
 
 html.dark input:-webkit-autofill,
 html.dark input:-webkit-autofill:hover,
@@ -108,22 +114,11 @@ html.dark textarea:-webkit-autofill,
 html.dark textarea:-webkit-autofill:hover,
 html.dark textarea:-webkit-autofill:focus,
 html.dark textarea:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px rgba(255, 255, 255, 0.08) inset;
-  -webkit-text-fill-color: #ededed;
-  caret-color: #ededed;
+  -webkit-box-shadow: 0 0 0 30px black inset;
+  box-shadow: 0 0 0 30px black inset;
+  -webkit-text-fill-color: #ffffff;
+  color: #ffffff;
+  caret-color: #ffffff;
+  border-color: white;
 }
 
-input[data-checkout-input],
-html.dark input[data-checkout-input] {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-html.dark input[data-checkout-input]:-webkit-autofill,
-html.dark input[data-checkout-input]:-webkit-autofill:hover,
-html.dark input[data-checkout-input]:-webkit-autofill:focus,
-html.dark input[data-checkout-input]:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.1) inset;
-  -webkit-text-fill-color: white;
-  caret-color: white;
-  transition: background-color 5000s ease-in-out 0s;
-}

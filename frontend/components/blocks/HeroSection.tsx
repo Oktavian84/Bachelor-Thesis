@@ -7,13 +7,13 @@ export function HeroSection({
   description,
 }: Readonly<HeroSectionProps>) {
   return (
-    <section className="relative w-full min-h-[90vh] overflow-hidden rounded-b-[5rem] md:rounded-b-[10rem] shadow-lg shadow-amber-100/50 pt-24 -mt-10 mb-30 bg-white text-black dark:bg-black dark:text-white">
+    <section className="relative w-full min-h-[90vh] overflow-hidden rounded-b-[5rem] md:rounded-b-[10rem] shadow-lg shadow-amber-100/50 pt-24 -mt-10 mb-30 bg-black text-white">
       {/* Background Image */}
       <div className="absolute inset-0 w-full h-full rounded-b-[3rem] md:rounded-b-[5rem] overflow-hidden">
         <StrapiImage
           src={image.url}
           alt={image.alternativeText || "No alternative text provided"}
-          className="object-cover opacity-[.18] dark:opacity-[.25]"
+          className="object-cover opacity-[.25]"
           fill
         />
       </div>
@@ -23,13 +23,13 @@ export function HeroSection({
         <div className="container mx-auto px-8 w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-30 items-center">
             <div className="flex items-center justify-center">
-              <h1 className="font-caudex text-5xl md:text-7xl lg:text-9xl font-bold text-center md:text-left">
+              <h1 className="font-caudex text-white text-5xl md:text-7xl lg:text-9xl font-bold text-center md:text-left text-shadow-lg/30">
                 {heading}
               </h1>
             </div>
 
             <div className="flex items-center justify-center">
-              <p className="font-caudex text-xl md:text-2xl lg:text-4xl leading-relaxed whitespace-pre-line max-w-lg text-center">
+              <p className="font-caudex text-white text-xl md:text-2xl lg:text-4xl leading-relaxed whitespace-pre-line max-w-lg text-center text-shadow-lg/30">
                 {description}
               </p>
             </div>

@@ -222,7 +222,6 @@ export function ExhibitionBlock({ exhibition }: Readonly<ExhibitionBlockProps>) 
                       onChange={handleInputChange}
                       disabled={isSubmitting}
                       defaultPlaceholder="Enter your name"
-                      className="shadow-sm shadow-black"
                     />
                   </div>
 
@@ -243,7 +242,6 @@ export function ExhibitionBlock({ exhibition }: Readonly<ExhibitionBlockProps>) 
                       onChange={handleInputChange}
                       disabled={isSubmitting}
                       defaultPlaceholder="Enter your email"
-                      className="shadow-sm shadow-black"
                     />
                   </div>
 

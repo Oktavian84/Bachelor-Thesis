@@ -152,7 +152,6 @@ export function ContactBlock({
                       onChange={handleInputChange}
                       disabled={isSubmitting}
                       defaultPlaceholder="Enter your name"
-                      className="shadow-sm shadow-black"
                     />
                   </div>
 
@@ -170,7 +169,6 @@ export function ContactBlock({
                       onChange={handleInputChange}
                       disabled={isSubmitting}
                       defaultPlaceholder="Enter your email"
-                      className="shadow-sm shadow-black"
                     />
                   </div>
 
@@ -189,7 +187,6 @@ export function ContactBlock({
                       disabled={isSubmitting}
                       defaultPlaceholder="Enter your message (minimum 10 characters)"
                       isTextarea
-                      className="shadow-sm shadow-black"
                     />
                   </div>
 
