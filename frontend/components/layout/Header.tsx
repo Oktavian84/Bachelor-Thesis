@@ -4,7 +4,8 @@ import type { LinkProps, LogoProps } from "@/types";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { StrapiImage } from "../StrapiImage";
+import Image from "next/image";
+import { getStrapiURL } from "@/utils/get-strapi-url";
 import { useCart } from "@/contexts/CartContext";
 import { ThemeToggle } from "../ThemeToggle";
 
@@ -79,13 +80,19 @@ export function Header({ data }: HeaderProps) {
       <div className="flex items-center justify-between">
         <Link href="/" className="flex items-center">
           <div className="w-10 h-10 rounded-lg overflow-hidden">
-            <StrapiImage
-              src={logo.image.url}
-              alt={logo.image.alternativeText || "No alternative text provided"}
-              width={48}
-              height={48}
-              className="object-cover w-full h-full"
-            />
+            {logo.image.url && (
+              <Image
+                src={logo.image.url.startsWith("http") || logo.image.url.startsWith("//")
+                  ? logo.image.url
+                  : `${getStrapiURL()}${logo.image.url}`}
+                alt={logo.image.alternativeText || "No alternative text provided"}
+                className="object-cover w-full h-full"
+                width={48}
+                height={48}
+                priority
+                unoptimized
+              />
+            )}
           </div>
         </Link>
 

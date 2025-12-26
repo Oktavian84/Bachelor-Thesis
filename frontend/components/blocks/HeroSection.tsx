@@ -1,4 +1,5 @@
-import { StrapiImage } from "../StrapiImage";
+import Image from "next/image";
+import { getStrapiURL } from "@/utils/get-strapi-url";
 import type { HeroSectionProps } from "@/types";
 
 export function HeroSection({
@@ -6,15 +7,21 @@ export function HeroSection({
   image,
   description,
 }: Readonly<HeroSectionProps>) {
+  const imageSrc = image.url.startsWith("http") || image.url.startsWith("//")
+    ? image.url
+    : `${getStrapiURL()}${image.url}`;
+
   return (
     <section className="relative w-full min-h-[90vh] overflow-hidden rounded-b-[5rem] md:rounded-b-[10rem] shadow-lg shadow-amber-100/50 pt-24 -mt-10 mb-30 bg-black text-white">
       {/* Background Image */}
       <div className="absolute inset-0 w-full h-full rounded-b-[3rem] md:rounded-b-[5rem] overflow-hidden">
-        <StrapiImage
-          src={image.url}
+        <Image
+          src={imageSrc}
           alt={image.alternativeText || "No alternative text provided"}
           className="object-cover opacity-[.25]"
           fill
+          priority
+          unoptimized
         />
       </div>
 
