@@ -57,6 +57,29 @@ export function Footer({ data }: FooterProps) {
           </p>
         </div>
       </div>
+
+      <div className="mt-4 text-center">
+        <p className="text-[0.65rem] text-black/70 dark:text-white/70">
+          &ldquo;Abstract Shape&rdquo; (
+          <a
+            href="https://skfb.ly/oGpO8"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-black dark:hover:text-white"
+          >
+            https://skfb.ly/oGpO8
+          </a>
+          ) by zames1992 is licensed under{" "}
+          <a
+            href="http://creativecommons.org/licenses/by/4.0/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-black dark:hover:text-white"
+          >
+            Creative Commons Attribution
+          </a>
+        </p>
+      </div>
     </footer>
   );
 }

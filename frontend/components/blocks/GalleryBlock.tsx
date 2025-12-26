@@ -414,7 +414,7 @@ export function GalleryBlock({ gallery_items }: Readonly<GalleryBlockProps>) {
               ×
             </motion.button>
 
-            <div className="lightbox-container fixed inset-0 z-50 flex items-start xl:items-center justify-start xl:justify-center pointer-events-none overflow-y-auto xl:overflow-hidden pt-26 xl:pt-0">
+            <div className="lightbox-container fixed inset-0 z-50 flex items-start xl:items-center justify-start xl:justify-center pointer-events-auto overflow-y-auto xl:overflow-hidden pt-26 xl:pt-0" style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}>
               <div
                 className="w-full flex flex-col xl:items-center justify-start xl:justify-center pointer-events-auto min-h-[calc(100vh+100px)] xl:min-h-0 pb-20 xl:pb-0"
                 onClick={(e) => e.stopPropagation()}
