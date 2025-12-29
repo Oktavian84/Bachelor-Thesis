@@ -15,7 +15,7 @@ export function FaqBlock({
   return (
     <div
       className={`w-full xl:w-[30%] min-h-[65vh] px-10 xl:px-20 py-20 mt-10 ${
-        isLight ? 'bg-black' : 'bg-white'
+        isLight ? "bg-black" : "bg-white"
       } ${
         reversed
           ? "rounded-tl-[8rem] rounded-tr-[8rem] rounded-bl-2xl rounded-br-2xl xl:mt-25"
@@ -23,11 +23,19 @@ export function FaqBlock({
       }`}
     >
       {headline && (
-        <h2 className={`font-caudex text-2xl md:text-3xl font-bold mb-4 text-center ${isLight ? 'text-white' : 'text-black'}`}>
+        <h2
+          className={`font-caudex text-2xl md:text-3xl font-bold mb-4 text-center ${
+            isLight ? "text-white" : "text-black"
+          }`}
+        >
           {headline}
         </h2>
       )}
-      <div className={`font-caudex md:text-lg leading-relaxed text-left ${isLight ? 'text-white' : 'text-black'}`}>
+      <div
+        className={`font-caudex md:text-lg leading-relaxed text-left ${
+          isLight ? "text-white" : "text-black"
+        }`}
+      >
         <ReactMarkdown>{content}</ReactMarkdown>
       </div>
     </div>

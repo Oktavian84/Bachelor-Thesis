@@ -1,4 +1,4 @@
-import { ZodError } from 'zod';
+import { ZodError } from "zod";
 
 export function formatZodErrors<T extends Record<string, unknown>>(
   error: ZodError
@@ -17,7 +17,7 @@ export function getInputValue(
   hasError: boolean,
   isFocused: boolean
 ): string {
-  return isFocused || !hasError ? value : '';
+  return isFocused || !hasError ? value : "";
 }
 
 export function getInputPlaceholder(
@@ -28,6 +28,5 @@ export function getInputPlaceholder(
 ): string {
   if (!value && error && !isFocused) return error;
   if (!value) return defaultPlaceholder;
-  return '';
+  return "";
 }
-
